@@ -1,0 +1,21 @@
+1. Take care of the newline problem. Since the data is being copied as a block from the disk file to memory, all the strings will have a newline appended to it.
+    For example: If I use a string "DATA" in my apsil code, the corresponding entry on the disk will be "DATA\n". This will be copied to the memory
+    on running the machine. This will mostly cause problems when using strcmp with strings entered through the terminal. This was temporarily
+    avoided by appending a newline to any string read with SIN. Also in the filesystem code you will locations where I have added '\n' to filename
+    before comparing with the filename entry in FAT. This is for the same reason. You will have to fix this bug.
+
+2. Also while calling around 12 Forks in an APSIL code, we encounterd a peculiar error . We are not sure whether it's
+   a problem with the maachine or the SPSIL test code we had written. It works for smaller no: of forks. Please look into that also. The problem occurs while
+   running testtt.apsil. I think the problem occurs because of a context switch happening between Fork and Exec in init process. It is finding a negative return address
+   in the pcb while reading.
+
+3. Try to create a script for compiling in a single step.
+
+4. There is a bug in the compiler for strcmp instruction. It returns the reverse of what is given in the spec.
+
+5. Create a better debug interface.
+6. Optimize acc to remove the extra newline added at the end.
+7. Try to add a random timer.
+
+We couldn't find any other bugs with the machine. Do a thorough inspection of the code for both machine and filesystem before proceeding. Try more test
+cases.

@@ -1,0 +1,6 @@
+Things to do
+1. Add -1 as basic block entry for empty entries in spec.
+2. Interface for data blocks if required.
+4. New line problem in file name. Copying the code from disk to memory appends a new line to the end of everyline. So the data section
+  contains the string with a newline. This can cause problems when comparing with strings read from terminal. This was avoided temporarily
+  by appending a newline to the string read using SIN in the machine.

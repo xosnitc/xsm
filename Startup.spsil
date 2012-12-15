@@ -1,0 +1,83 @@
+define PAGE_TABLE_START 512;
+define READY_LIST_START 720;
+// Loading the interrupts.
+
+alias blockNo S0;
+alias pageNo S1;
+
+blockNo = 1;
+pageNo = 56;
+
+
+while( blockNo <= 8) do
+  load (pageNo,blockNo);
+  pageNo = pageNo + 1;
+  blockNo = blockNo + 1;
+endwhile;
+
+//Loading the FAT
+
+load (4,11);
+load (5,12);
+
+// Loading the disk free list
+
+load (6,9);
+load (7,10);
+
+// Initialsing the memory free list.
+
+alias memFreeList S0;
+memFreeList = 560;
+
+while( memFreeList <= 623 ) do
+  if( ( memFreeList >= 568 ) && ( memFreeList <= 615 ) ) then
+      [ memFreeList ] = 0;
+      memFreeList = memFreeList + 1;
+  else
+      [ memFreeList ] = 0;
+      memFreeList = memFreeList + 1;
+   endif;  
+endwhile;
+
+// Initialising The Ready List
+alias readyList S3;
+readyList = 720;
+
+while( readyList <= 731 ) do
+	[ readyList ] = 0;
+	readyList = readyList + 1;
+endwhile;
+
+// Loading the init process.
+
+alias addrSpace S1;
+alias codeBlock S2;
+alias pageTable S4;
+
+pageTable = 512;
+addrSpace = 8;
+codeBlock = 14;
+memFreeList = 568;
+
+while( addrSpace <= 10 ) do
+	load (addrSpace, codeBlock);
+	[ memFreeList ] = 1;
+	[pageTable] = addrSpace;
+	codeBlock = codeBlock + 1;
+	addrSpace = addrSpace + 1;
+	memFreeList = memFreeList + 1;
+	pageTable = pageTable + 1;
+endwhile;  
+[ memFreeList ] = 1;   // reserved for user stack.
+[pageTable] = addrSpace;
+
+readyList = 720;
+[ readyList ] = 1;  // for the readyList value for init.
+
+PID = 0;
+BP = 768;
+SP = 769;
+S0=[PAGE_TABLE_START+PID*4+3];         // setting the parameters for init.
+[S0*256]=0;
+ireturn;

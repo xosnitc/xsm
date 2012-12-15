@@ -1,0 +1,19 @@
+Compiler: gcc 4.4.3(recomended)
+Platform: Linux 2.6(recomended)
+
+NOTE:
+  1. The disk file is named as "disk". To change it make changes in:
+					    a) First line of the Makefile
+					    b) DISK_NAME constant in fileSystem.h
+  
+  2. The entire code works by fist writing to a memory copy before committing to the actual disk file.
+
+Compiling: 
+  1. cd to directory.
+  2. Type 'make' and press enter.
+
+Run:
+  1. Compile by following the above steps.
+  2. Run ./fileSystem on the terminal.
+  3. Follow the menu.
+  

@@ -1,0 +1,16 @@
+decl	
+	string a;
+enddecl
+integer main(){
+	string b;
+	a="Hello";
+	a="Hai";
+	a="HaiWorld";
+	a="Hello aara?";
+	read(b);
+	write(a);
+	a=b;
+	write(b);
+	return 0;
+}
+

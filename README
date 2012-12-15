@@ -1,0 +1,27 @@
+This machine is a pure string machine. Make necessary changes to the maximum size of string if needed.
+
+There are three steps involved before running this machine:
+
+1. Compiling:
+      a. In case of SPSIL code use the SPSIL compiler.
+	  Syntax: ./spsil < filename
+      b. In case of APSIL code use the APSIL compiler.
+	  Syntax: ./apsil < filename
+      The compiled code will contained labels. In order to remove labels use aac executable. An esim file has to be
+      given as input to this executable.
+	  Syntax: ./aac < esim filename.
+      The labels replaced file will have name labels_replaced.esim.
+
+2. Loading the file to disk:
+      a. Use the fileSystem executable. Initial formatting is necessary if disk is going to be used for the first time.
+      b. Use the interface to load the executable.
+
+3. Running the machine:
+      a. Use the esim executable. Use -id if you want to disable timer interrupt.
+      Note: Make sure that OS startup code is present. Since string checking is not available in SPSIL, it is impossible to search
+      for a file on the disk. For this use the init program. The location for this on the disk is fixed as the starting four data blocks on
+      disk.The first block is the basic block and the remaining three will be the data blocks.
+
+
+There are TODO's in the machine and filesystem folder. Read them. They contain some problems we encountered but didn't have time to fix.
+Also add a download link for the machine code on the website. Don't upload the interrupts code which we wrote onto github since the repo is public.

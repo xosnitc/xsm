@@ -2,11 +2,8 @@
   Contains basic declarations for register, pages,etc.
 */
 
-
-
 #ifndef DATA_H
 #define DATA_H
-
 
 #define KERNEL_MODE	0
 #define USER_MODE	1
@@ -51,15 +48,7 @@
 #define PAGE_SIZE	512
 #define NUM_PAGES	64
 #define SIZE_OF_MEM	(PAGE_SIZE * NUM_PAGES)         //note Entire memory
-#define PCB_SIZE	16
-
-
-#define CODE_PAGE	0
-#define NUM_CODE_PAGES	2
-#define DATA_PAGE	2
-#define STACK_PAGE	3
-#define STACK_START_ADDRESS (STACK_PAGE * PAGE_SIZE)
-#define NUM_PAGES_PERPROCESS	4
+#define WORDS_PERINSTR	2
 
 struct {
 	char data[WORD_SIZE];
@@ -67,7 +56,7 @@ struct {
 }yylval;
 
 char reg[NUM_REGS][WORD_SIZE];
-char instruction[WORD_SIZE][2];
+char instruction[WORD_SIZE * WORDS_PERINSTR];
 int mode;
 
 typedef struct {

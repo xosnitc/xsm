@@ -1,42 +1,17 @@
 #ifndef MEM_CONS_H
 #define MEM_CONS_H
-//CONSTANTS OF PAGE 2
 
-#define PAGETBL_PAGENO			2
-#define PAGETBL_START_WORD		0
-#define PAGETBL_SIZE			4    
-#define NO_OF_PROCESS			12
-
-
+#define ROM_CODE			0
 #define OS_STARTUP_CODE_PAGENO		1
 
-#define MEM_FREELIST_PAGENO		2
-#define MEM_FREELIST_START_WORD		(PAGETBL_SIZE * NO_OF_PROCESS)	
-
-#define INT0 				0
-
-#define GFT_PAGENO			2
-#define GFT_START_WORD			(NUM_PAGES + PAGETBL_SIZE * NO_OF_PROCESS)
-#define GFT_ENTRY_SIZE			2
-#define MAX_OPEN_FILES			32
-
-
-#define FAT_START_PAGE			4
-#define FAT_NUMPAGES			2
-#define FAT_START_WORD			0
-#define FAT_ENTRY_SIZE			16
-#define NO_OF_FILES			32
-#define FAT_SIZE			(FAT_ENTRY_SIZE * NO_OF_FILES)
-
-//CONSTANTS OF PAGE 6
-
-#define DISK_FREELIST_PAGENO		6
-#define DISK_FREELIST_START_WORD	0
-#define DISK_FREELIST_NUMPAGES		2
-
-
-
-#define SCRATCHPAD			OS_STARTUP_CODE_PAGENO
-#define KERNEL_STACK_PAGE		7
+#define EXCEPTION_HANDLER		7
+#define INT0 				8	//TIMER
+#define INT1 				9
+#define INT2 				10
+#define INT3 				11
+#define INT4 				12
+#define INT5 				13
+#define INT6 				14
+#define INT7 				15
 
 #endif

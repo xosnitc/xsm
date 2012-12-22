@@ -20,39 +20,35 @@
 #define R6		6
 #define R7		7
 
-#define BP_REG		8
-#define SP_REG		9
-#define IP_REG		10
-#define PID_REG		11
+#define R8		8
+#define R9		9
+#define R10		10
+#define R11		11
+#define R12		12
+#define R13		13
+#define R14		14
+#define R15		15
 
+#define T0		16
+#define T1		17
+#define T2		18
+#define T3		19
 
-
-#define S0		12
-#define S1		13
-#define S2		14
-#define S3		15
-#define S4		16
-#define S5		17
-#define S6		18
-#define S7		19
-
-#define T0		20
-#define T1		21
-#define T2		22
-#define T3		23
-
+#define BP_REG		20
+#define IP_REG		21
+#define SP_REG		22
+#define PTBR_REG	23
+#define PTLR_REG	24
 
 #define NO_USER_REG	8
-#define NO_SPECIAL_REG  4
 #define NO_SYS_REG	8
 #define NO_TEMP_REG  	4
-
-
+#define NO_SPECIAL_REG  5
 
 
 #define NUM_REGS	(NO_USER_REG + NO_SPECIAL_REG + NO_SYS_REG + NO_TEMP_REG)
 #define WORD_SIZE	16
-#define PAGE_SIZE	256
+#define PAGE_SIZE	512
 #define NUM_PAGES	64
 #define SIZE_OF_MEM	(PAGE_SIZE * NUM_PAGES)         //note Entire memory
 #define PCB_SIZE	16
@@ -71,7 +67,7 @@ struct {
 }yylval;
 
 char reg[NUM_REGS][WORD_SIZE];
-char instruction[WORD_SIZE];
+char instruction[WORD_SIZE][2];
 int mode;
 
 typedef struct {

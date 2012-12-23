@@ -28,7 +28,6 @@ SP 		{ yylval.flag=SP; return(0); }
 BP		{ yylval.flag=BP; return(0); }
 IP		{ /*printf("<ERROR:%d:> IP cannot be an arguement\n",getInteger(reg[IP_REG]));exit(0);*/
 		  yylval.flag=IP; return(0); }
-PID		{yylval.flag=REG; return(PID_REG);}
 ADD		{ yylval.flag=ADD; return(ARITH); }
 SUB		{ yylval.flag=SUB; return(ARITH); }
 MUL		{ yylval.flag=MUL; return(ARITH); }

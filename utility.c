@@ -11,10 +11,9 @@ void emptyPage(int page_no) {
 struct address translate (int virtual_addr) {
 	if(mode == USER_MODE) {
 		struct address resultant_addr;
-		int pid, page_entry;
-		pid = getInteger(reg[PID_REG]);
-		page_entry = pid * NUM_PAGES_PERPROCESS;
-		resultant_addr.page_no = getInteger(page[PAGETBL_PAGENO].word[PAGETBL_START_WORD + page_entry + virtual_addr / PAGE_SIZE]);
+		int page_entry;
+		page_entry = getInteger(reg[PTBR_REG]);
+		resultant_addr.page_no = getInteger(page[page_entry / PAGE_SIZE].word[ (page_entry % PAGE_SIZE) + (virtual_addr / PAGE_SIZE) ]);
 		resultant_addr.word_no = virtual_addr % PAGE_SIZE;
 // 		printf("pg %d - wd %d \n", resultant_addr.page_no, resultant_addr.word_no); note: debugging
 		return resultant_addr;
@@ -53,16 +52,17 @@ void printRegisters() {
 			case IP_REG: 
 				printf("IP: %d\n",getInteger(reg[IP_REG]));
 				break;
-			case PID_REG: 
-				printf("PID: %d\n",getInteger(reg[PID_REG]));
-				break;	
+			case PTBR_REG: 
+				printf("PTBR: %d\n",getInteger(reg[PTBR_REG]));
+				break;
+			case PTLR_REG: 
+				printf("PTLR: %d\n",getInteger(reg[PTLR_REG]));
+				break;		
 			default: 
-				if(i<=7)
+				if(i<=15)
 					printf("R%d: %d\n",i,getInteger(reg[i]));
-				else if(i<20)
-					printf("S%d: %d\n",i-12,getInteger(reg[i]));
 				else
-					printf("T%d: %d\n",i-20,getInteger(reg[i]));
+					printf("T%d: %d\n",i-16,getInteger(reg[i]));
 				break;
 		}
 	}

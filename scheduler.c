@@ -7,11 +7,11 @@
 */
 void runInt0Code(){
 	struct address translated_addr;
-	if(getInteger(reg[SP_REG])  + 1 < STACK_START_ADDRESS){
+	if(getInteger(reg[SP_REG])  + 1 < 0){
 		exception("Stack underflow\n");
 		exit(0);
 		}
-	if(getInteger(reg[SP_REG])  + 1 >= STACK_START_ADDRESS + PAGE_SIZE){
+	if(getInteger(reg[SP_REG])  + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
 			exception("Stack overflow\n");
 			exit(0);
 		}	
@@ -20,5 +20,5 @@ void runInt0Code(){
 	storeInteger(page[translated_addr.page_no].word[translated_addr.word_no], getInteger(reg[IP_REG]));
 // 	printf("Pushing %d into %d\n",getInteger(reg[IP_REG]),getInteger(reg[SP_REG]));
 	mode = KERNEL_MODE;
-	storeInteger(reg[IP_REG], (INT0 + INT_START_PAGE) * PAGE_SIZE);
+	storeInteger(reg[IP_REG], INT0  * PAGE_SIZE);
 }

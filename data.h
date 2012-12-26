@@ -36,11 +36,12 @@
 #define SP_REG		22
 #define PTBR_REG	23
 #define PTLR_REG	24
+#define EFR_REG		25
 
 #define NO_USER_REG	8
 #define NO_SYS_REG	8
 #define NO_TEMP_REG  	4
-#define NO_SPECIAL_REG  5
+#define NO_SPECIAL_REG  6
 
 
 #define NUM_REGS	(NO_USER_REG + NO_SPECIAL_REG + NO_SYS_REG + NO_TEMP_REG)

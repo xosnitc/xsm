@@ -57,6 +57,9 @@ void printRegisters() {
 				break;
 			case PTLR_REG: 
 				printf("PTLR: %d\n",getInteger(reg[PTLR_REG]));
+				break;
+			case EFR_REG: 
+				printf("EFR: %d\n",getInteger(reg[EFR_REG]));
 				break;		
 			default: 
 				if(i<=15)

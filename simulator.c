@@ -63,6 +63,8 @@ void run(int db_mode, int intDisable) {
 		}
 		translatedAddr = translate(getInteger(reg[IP_REG]));
 		strcpy(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
+		translatedAddr = translate(getInteger(reg[IP_REG])+1);
+		strcat(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
 //  		printf("%s\n", instruction); // note:debugging
 		translatedAddr.word_no = -1;
 		translatedAddr.page_no = -1;
@@ -103,7 +105,7 @@ void Executeoneinstr(int instr)
 	struct address translatedAddr1, translatedAddr2;;
 	switch(instr)
 	{
-		case START: storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);	//increment IP
+		case START: storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);	//increment IP
 		break;
 		case MOV:						//1st phase:get the value		2nd phase:store the value
 		{
@@ -269,7 +271,7 @@ void Executeoneinstr(int instr)
 					exception("Illegal operand");
 				break;
 			}
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		}
 		break;
 		case ARITH:
@@ -312,7 +314,7 @@ void Executeoneinstr(int instr)
 						exception("Illegal Instruction");
 					break;
 				}
-				storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+				storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			}
 			
 		}
@@ -345,7 +347,7 @@ void Executeoneinstr(int instr)
 				default:exception("Illegal Instruction");
 				break;
 			}
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		}
 		break;
 		case BRANCH:
@@ -373,7 +375,7 @@ void Executeoneinstr(int instr)
 						YY_FLUSH_BUFFER;
 					}
 					else
-						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 					break;
 				
 				case JNZ:
@@ -396,7 +398,7 @@ void Executeoneinstr(int instr)
 						YY_FLUSH_BUFFER;
 					}
 					else
-						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 					break;
 				
 				case JMP:
@@ -449,7 +451,7 @@ void Executeoneinstr(int instr)
 				default:
 					exception("Illegal operand");
 			}
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		case POP:				//note:Modified here
 			/*if(mode == KERNEL_MODE){
@@ -484,7 +486,7 @@ void Executeoneinstr(int instr)
 				break;
 			}
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG])-1);
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		case CALL:				//note: Modified here.
 			/*if(mode == KERNEL_MODE){
@@ -578,7 +580,7 @@ void Executeoneinstr(int instr)
 			int input;
 			scanf("%d",&input);
 			storeInteger(reg[opnd1], input);
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		
 		case OUT:		//note: is there any need to print '\n' since string is present
@@ -587,7 +589,7 @@ void Executeoneinstr(int instr)
 				exception("Illegal operand");
 			}
 			printf("%d\n",getInteger(reg[opnd1]));
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		
 		case SIN:			//note:modified here
@@ -608,7 +610,7 @@ void Executeoneinstr(int instr)
 			opnd1Value = getInteger(reg[opnd1]);
 			translatedAddr = translate(opnd1Value);
 			strcpy(page[translatedAddr.page_no].word[translatedAddr.word_no], str);
-			storeInteger(reg[IP_REG], getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG], getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		case SOUT:				//note: modified and do we need '\n'
 			opnd1 = yylex();
@@ -618,7 +620,7 @@ void Executeoneinstr(int instr)
 			opnd1Value = getInteger(reg[opnd1]);
 			translatedAddr = translate(opnd1Value);
 			printf("%s\n",page[translatedAddr.page_no].word[translatedAddr.word_no]);
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		case STRCMP:				//note:modified here
 			opnd1 = yylex();
@@ -635,7 +637,7 @@ void Executeoneinstr(int instr)
 			translatedAddr2 = translate(opnd2Value);
 // 			printf("---%s---\n---%s---\n",page[translatedAddr1.page_no].word[translatedAddr1.word_no],page[translatedAddr2.page_no].word[translatedAddr2.word_no]);
 			storeInteger(reg[opnd1],strcmp(page[translatedAddr1.page_no].word[translatedAddr1.word_no],page[translatedAddr2.page_no].word[translatedAddr2.word_no]));
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
 		
 		case STRCPY:				//note:modified here
@@ -657,7 +659,7 @@ void Executeoneinstr(int instr)
 			strcpy(page[translatedAddr1.page_no].word[translatedAddr1.word_no], page[translatedAddr2.page_no].word[translatedAddr2.word_no]);
 // 			printf("---- %s -----\n", page[translatedAddr1.page_no].word[translatedAddr1.word_no]);
 // 			printf("---- %d -----\n", getInteger(page[translatedAddr1.page_no].word[translatedAddr1.word_no]));
-			storeInteger(reg[IP_REG], getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG], getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;	
 		case LOAD:
 			opnd1 = yylex();
@@ -709,7 +711,7 @@ void Executeoneinstr(int instr)
 			
 // 			printf("ReadFromDisk: page = %d\n diskBlock = %d\n", result, result2);
 			readFromDisk(result, result2);
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;	
 		
 		case STORE:					//note:modified
@@ -764,7 +766,7 @@ void Executeoneinstr(int instr)
 			writeToDisk(result2, result);
 			//printf("%d\n", result);
 			//printf("%d\n", result2);
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+1);
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 			
 		case HALT:

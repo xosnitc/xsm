@@ -51,6 +51,12 @@
 #define SIZE_OF_MEM		(PAGE_SIZE * NUM_PAGES)         //note Entire memory
 #define WORDS_PERINSTR	2
 
+#define EX_PAGEFAULT	0
+#define EX_ILLINSTR		1
+#define EX_ILLMEM		2
+#define EX_ARITH		3
+#define EX_ILLOPERAND	4
+
 struct {
 	char data[WORD_SIZE];
 	int flag;

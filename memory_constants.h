@@ -4,7 +4,7 @@
 #define ROM_CODE			0
 #define OS_STARTUP_CODE_PAGENO		1
 
-#define EXCEP_HANDLER			7
+#define EXCEP_HANDLER		7
 #define INT0 				8	//TIMER
 #define INT1 				9
 #define INT2 				10

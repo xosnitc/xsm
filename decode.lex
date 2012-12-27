@@ -61,12 +61,17 @@ SP 			{ yylval.flag=SP; yylval.flag2=0; return(0); }
 BP			{ yylval.flag=BP; yylval.flag2=0; return(0); }
 IP			{ /*printf("<ERROR:%d:> IP cannot be an arguement\n",getInteger(reg[IP_REG]));exit(0);*/
 		  	yylval.flag=IP; yylval.flag2=0; return(0); }
+PTBR		{ yylval.flag=PTBR; yylval.flag2=0; return(0); }
+PTLR		{ yylval.flag=PTLR; yylval.flag2=0; return(0); }
+EFR			{ yylval.flag=EFR; yylval.flag2=0; return(0); } 	
 R[0-9]+ 	{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext));	}
 T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0); }
 \[SP\]		{ yylval.flag=MEM_SP; yylval.flag2=0; return(0); }
 \[BP\]		{ yylval.flag=MEM_BP; yylval.flag2=0; return(0); }
-\[IP\]		{ printf("<ERROR:%d:>IP cannot be an arguement\n",getInteger(reg[IP_REG]));exit(0);
-		  	yylval.flag=MEM_IP; yylval.flag2=0; return(0); }		//error: Is this needed.
+\[IP\]		{ yylval.flag=MEM_IP; yylval.flag2=0; return(0); }		//error: Is this needed.
+\[PTBR\]	{ yylval.flag=MEM_PTBR; yylval.flag2=0; return(0); }
+\[PTLR\]	{ yylval.flag=MEM_PTLR; yylval.flag2=0; return(0); }
+\[EFR\]		{ yylval.flag=MEM_EFR; yylval.flag2=0; return(0); }
 \[R[0-9]+\]   	{	
 				yylval.flag=MEM_REG; yylval.flag2=0; 
 				yytext[yyleng-1]='\0';
@@ -86,21 +91,42 @@ T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0);
 				yytext++;
 				return(atoi(yytext));
 				}
-\[[0-9]+\]R[0-9]+	{
+\[-?[0-9]+\]R[0-9]+	{
 					yylval.flag=MEM_DIR_REG;
 					yytext++;
 					get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 					yylval.flag2=atoi(tempbuf);
 					return(atoi(yytext));					
 					}
-\[[0-9]+\]T[0-9]+	{
+\[-?[0-9]+\]T[0-9]+	{
 					yylval.flag=MEM_DIR_REG;
 					yytext++;
 					get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 					yylval.flag2=atoi(tempbuf) + T0;
 					return(atoi(yytext));					
 					}
-\[[0-9]+\]-?[0-9]+	{
+\[-?[0-9]+\]SP		{
+					yylval.flag=MEM_DIR_REG;
+					yytext++;
+					get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+					yylval.flag2=SP_REG;
+					return(atoi(yytext));					
+					}
+\[-?[0-9]+\]BP		{
+					yylval.flag=MEM_DIR_REG;
+					yytext++;
+					get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+					yylval.flag2=BP_REG;
+					return(atoi(yytext));					
+					}
+\[-?[0-9]+\]PTBR	{
+					yylval.flag=MEM_DIR_REG;
+					yytext++;
+					get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+					yylval.flag2=PTBR_REG;
+					return(atoi(yytext));					
+					}					
+\[-?[0-9]+\]-?[0-9]+	{
 					yylval.flag=MEM_DIR_IN;
 					yytext++;
 					get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***

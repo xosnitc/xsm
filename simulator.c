@@ -52,12 +52,12 @@ void run(int db_mode, int intDisable) {
 	while(1) {
 		struct address translatedAddr;
 		if(getInteger(reg[IP_REG])<0 || getInteger(reg[IP_REG]) + 1 >SIZE_OF_MEM){			//checks if address is outside limits
-		    exception("IP Register value out of bounds");
+		    exception("IP Register value out of bounds", EX_ILLMEM, 0);
 		}
 		if(mode == USER_MODE){						//checks if address is outside limits if mode is user mode
 			if(getInteger(reg[IP_REG]) < 0 || getInteger(reg[IP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
 				printf("%d", getInteger(reg[IP_REG]));
-				exception("Illegal IP access1");
+				exception("Illegal IP access1", EX_ILLOPERAND, 0);
 				continue;
 			}
 		}
@@ -118,31 +118,55 @@ void Executeoneinstr(int instr)
 			switch(flag2)
 			{
 				case REG:
-				  result = getInteger(reg[opnd2]);
-				  break;
+					if(mode == USER_MODE && opnd2 > R7)
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+					else if(opnd2 > T3)
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+					else
+						result = getInteger(reg[opnd2]);
+					break;
 				case SP: 
-				  result = getInteger(reg[SP_REG]);
-				  break;
+					result = getInteger(reg[SP_REG]);
+					break;
 				case BP: 
-				  result = getInteger(reg[BP_REG]);
-				  break;
+					result = getInteger(reg[BP_REG]);
+					break;
 				case IP:
-				  result = getInteger(reg[IP_REG]);
-				  break;
-// 				case PID:
-// 					result = getInteger(reg[PID_REG]);;
+					if(mode == USER_MODE)
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+					else
+						result = getInteger(reg[IP_REG]);
+					break;
+				case PTBR:
+					if(mode == USER_MODE)
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+					else
+						result = getInteger(reg[PTBR_REG]);
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+					else
+						result = getInteger(reg[PTLR_REG]);
+					break;
+				case EFR:
+					if(mode == USER_MODE)
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+					else
+						result = getInteger(reg[EFR_REG]);
+					break;
 				case NUM:
-				  result = opnd2;
-				  break;
+					result = opnd2;
+					break;
 				case MEM_REG:
 				{
 					char c;
 					if(mode == USER_MODE)
 					{
-						if(getInteger(reg[opnd2]) < 0 || getInteger(reg[opnd2]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access1");
-						}
-						translatedAddr = translate(getInteger(reg[opnd2]));
+						if(getInteger(reg[opnd2]) < 0 || getInteger(reg[opnd2]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
+							exception("Illegal address access1", EX_ILLMEM, 0);
+						else
+							translatedAddr = translate(getInteger(reg[opnd2]));
 					}
 					else
 						translatedAddr = translate(getInteger(reg[opnd2]));
@@ -150,91 +174,95 @@ void Executeoneinstr(int instr)
 // 					scanf("%c", &c);
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					//mem[reg[opnd2]];
+					break;
 				}
-				break;
 				case MEM_SP:							//note: modified here
-				  /*if(mode == KERNEL_MODE){
+					/*if(mode == KERNEL_MODE){
 						exception("Cannot use memory reference with SP when in Kernel Mode");
 					}
-				  else if(getInteger(reg[SP_REG]) < STACK_START_ADDRESS || getInteger(reg[SP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
-				  if(getInteger(reg[SP_REG]) < 0 || getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-						exception("Illegal address access.\nSP value is out of bounds.");
+					else if(getInteger(reg[SP_REG]) < STACK_START_ADDRESS || getInteger(reg[SP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
+					if(getInteger(reg[SP_REG]) < 0 || getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
+						exception("Illegal address access.\nSP value is out of bounds.", EX_ILLMEM, 0);
 					}
-				    
-				  translatedAddr = translate(getInteger(reg[SP_REG]));
-				  result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-				  break;
+
+					translatedAddr = translate(getInteger(reg[SP_REG]));
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
 				case MEM_BP:							//note:modified here
-				  /*if(mode == KERNEL_MODE){
+					/*if(mode == KERNEL_MODE){
 						exception("Cannot use memory reference with BP when in Kernel Mode");
 					}
-				  else if(getInteger(reg[BP_REG]) < STACK_START_ADDRESS || getInteger(reg[BP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
-				  if(getInteger(reg[BP_REG]) < 0 || getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-						exception("Illegal address access.\nBP value is out of bounds.");
+					else if(getInteger(reg[BP_REG]) < STACK_START_ADDRESS || getInteger(reg[BP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
+					if(getInteger(reg[BP_REG]) < 0 || getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
+						exception("Illegal address access.\nBP value is out of bounds.", EX_ILLMEM, 0);
 					}
-				    
-				  translatedAddr = translate(getInteger(reg[BP_REG]));
-				  result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-				break;
+
+					translatedAddr = translate(getInteger(reg[BP_REG]));
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
 				case MEM_IP:							//note:modified here. Also note that this will never happen
-				  exception("Cannot use memory reference with IP in any mode");
-				break;
+					exception("Cannot use memory reference with IP in any mode", EX_ILLOPERAND, 0);
+					break;
 				case MEM_DIR:
 					if(mode == USER_MODE) {
 						if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							 exception("Illegal address access.\nDirect Address value out of bounds.");
+							 exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(opnd2);
 					}
 					else
 						translatedAddr = translate(opnd2);
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-				break;
+					break;
 				case MEM_DIR_REG:
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_IN)
+						exception("Illegal Operands", EX_ILLOPERAND, 0);
 					opnd2 += getInteger(reg[flag22]);
 					if(mode == USER_MODE) {
 						if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							 exception("Illegal address access.\nDirect Address value out of bounds.");
+							 exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(opnd2);
 					}
 					else
 						translatedAddr = translate(opnd2);
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-				break;
+					break;
 				case MEM_DIR_IN:
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_IN)
+						exception("Illegal Operands", EX_ILLOPERAND, 0);
 					opnd2 += flag22;
 					if(mode == USER_MODE) {
 						if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							 exception("Illegal address access.\nDirect Address value out of bounds.");
+							 exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(opnd2);
 					}
 					else
 						translatedAddr = translate(opnd2);
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-				break;
+					break;
 				default:
-					exception("Illegal Operand");
+					exception("Illegal Operand", EX_ILLOPERAND, 0);
 				break;
 			}
 			switch(flag1)
 			{
 				case REG: 
-				  storeInteger(reg[opnd1], result);
-				  break;
+					storeInteger(reg[opnd1], result);
+					break;
 				case SP: //can modify this to show error if result exceeds value that can be stored in SP.
-				  storeInteger(reg[SP_REG], result);
-				  break;
+					storeInteger(reg[SP_REG], result);
+					break;
 				case BP: //same as above. 
-				  storeInteger(reg[BP_REG], result);
-				  break;
+					storeInteger(reg[BP_REG], result);
+					break;
 // 				case PID: //same as above. 
 // 					storeInteger(reg[PID_REG], result);
 // 					break;
 				case IP:
 					if(mode == USER_MODE) {
-						exception("Illegal operand IP");
+						exception("Illegal operand IP", EX_ILLOPERAND, 0);
 					}
 					else {	//note: modified here
 						//commented the lines 1. struct address translatedAddr = translate(result);and 2. mode = USER_MODE.
@@ -242,11 +270,11 @@ void Executeoneinstr(int instr)
 						storeInteger(reg[IP_REG], result);
 // 						mode = USER_MODE;//error: why is this needed
 					}	
-				break;
+					break;
 				case MEM_REG:
 					if(mode == USER_MODE) {
 						if(getInteger(reg[opnd1]) < 0 || getInteger(reg[opnd1]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access.\n Value in register out of bounds.");
+							exception("Illegal address access.\n Value in register out of bounds.", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(getInteger(reg[opnd1]));
 					}
@@ -255,70 +283,70 @@ void Executeoneinstr(int instr)
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					//storeInteger(page[getInteger(page[KERNEL_PAGETBL_PAGENO].word[KERNEL_PAGETBL_START_WORD + STACK_PAGE])].word[getInteger(reg[opnd1])], result);
 					//mem[reg[opnd1]] = result;
-				break;
+					break;
 				case MEM_SP:	//note:Modified here
 				    /*if(mode == KERNEL_MODE){
 						exception("Cannot use memory reference with SP when in Kernel Mode");
 					}
 				    else if(getInteger(reg[SP_REG]) < STACK_START_ADDRESS || getInteger(reg[SP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
 				    if(getInteger(reg[SP_REG]) < 0 || getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-						exception("Illegal address access.\nSP value is out of bounds.");
+						exception("Illegal address access.\nSP value is out of bounds.", EX_ILLMEM, 0);
 					}  
 				    translatedAddr = translate(getInteger(reg[SP_REG]));
 				    storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
-				break;
+					break;
 				case MEM_BP:	//note:Modified here
 				    /*if(mode == KERNEL_MODE){
 						exception("Cannot use memory reference with BP when in Kernel Mode");
 					}
 				    else if(getInteger(reg[BP_REG]) < STACK_START_ADDRESS || getInteger(reg[BP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
 				    if(getInteger(reg[BP_REG]) < 0 || getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-						exception("Illegal address access.\nBP value is out of bounds.");
+						exception("Illegal address access.\nBP value is out of bounds.", EX_ILLMEM, 0);
 					} 
 				    translatedAddr = translate(getInteger(reg[BP_REG]));
 				    storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
-				break;
+					break;
 				case MEM_IP:	//note:Modified here
 // 					storeInteger(page[getInteger(page[KERNEL_PAGETBL_PAGENO].word[KERNEL_PAGETBL_START_WORD + STACK_PAGE])].word[getInteger(reg[IP_REG])  % PAGE_SIZE], result);
-				    error("Cannot use memory reference with IP in any mode.");
-				break;
+				    error("Cannot use memory reference with IP in any mode.", EX_ILLOPERAND, 0);
+					break;
 				case MEM_DIR:
 					if(mode == USER_MODE) {
 						if(opnd1 < 0 || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access4");
+							exception("Illegal address access4", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(opnd1);
 					}
 					else
 						translatedAddr = translate(opnd1);
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
-				break;
+					break;
 				case MEM_DIR_REG:
 					opnd1 += getInteger(reg[flag12]);
 					if(mode == USER_MODE) {
 						if(opnd1 < 0 || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access5");
+							exception("Illegal address access5", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(opnd1);
 					}
 					else
 						translatedAddr = translate(opnd1);
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
-				break;
+					break;
 				case MEM_DIR_IN:
 					opnd1 += flag12;
 					if(mode == USER_MODE) {
 						if(opnd1 < 0 || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access6");
+							exception("Illegal address access6", EX_ILLMEM, 0);
 						}
 						translatedAddr = translate(opnd1);
 					}
 					else
 						translatedAddr = translate(opnd1);
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
-				break;
+					break;
 				default:
-					exception("Illegal operand");
+					exception("Illegal operand", EX_ILLOPERAND, 0);
 				break;
 			}
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
@@ -329,7 +357,7 @@ void Executeoneinstr(int instr)
 			oper = yylval.flag;
 			opnd1 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand1");
+				exception("Illegal operand1", EX_ILLOPERAND, 0);
 			}
 			else
 			{
@@ -337,7 +365,7 @@ void Executeoneinstr(int instr)
 				{
 					opnd2 = yylex();
 					if(yylval.flag != REG) {
-						exception("Illegal operand");
+						exception("Illegal operand", EX_ILLOPERAND, 0);
 					}
 				}
 				switch(oper)
@@ -350,7 +378,7 @@ void Executeoneinstr(int instr)
 					break;
 					case DIV: 
 						if(getInteger(reg[opnd2]) == 0) {
-							exception("Divide by ZERO");
+							exception("Divide by ZERO", EX_ILLOPERAND, 0);
 						}
 						storeInteger(reg[opnd1],getInteger(reg[opnd1]) / getInteger(reg[opnd2]));
 					break;
@@ -361,7 +389,7 @@ void Executeoneinstr(int instr)
 					case DCR: storeInteger(reg[opnd1],getInteger(reg[opnd1]) - 1);
 					break;
 					default:
-						exception("Illegal Instruction");
+						exception("Illegal Instruction", EX_ILLINSTR, 0);
 					break;
 				}
 				storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
@@ -374,11 +402,11 @@ void Executeoneinstr(int instr)
 			oper = yylval.flag;
 			opnd1 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			opnd2 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			switch(oper)
 			{
@@ -394,7 +422,7 @@ void Executeoneinstr(int instr)
 				break;
 				case GE:storeInteger(reg[opnd1],(getInteger(reg[opnd1]) >= getInteger(reg[opnd2])?1:0));
 				break;	
-				default:exception("Illegal Instruction");
+				default:exception("Illegal Instruction", EX_ILLINSTR, 0);
 				break;
 			}
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
@@ -408,17 +436,17 @@ void Executeoneinstr(int instr)
 				case JZ:
 					opnd1 = yylex();
 					if(yylval.flag != REG) {
-						exception("Illegal operand");
+						exception("Illegal operand", EX_ILLOPERAND, 0);
 					}
 					opnd2 = yylex();
 					if(yylval.flag != NUM){
-						exception("Illegal operand");
+						exception("Illegal operand", EX_ILLOPERAND, 0);
 					}
 					if(getInteger(reg[opnd1]) == 0)
 					{
 						if(mode == USER_MODE) {
 							if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-								exception("Illegal address access");
+								exception("Illegal address access", EX_ILLMEM, 0);
 							}
 						}
 						storeInteger(reg[IP_REG], opnd2);
@@ -431,17 +459,17 @@ void Executeoneinstr(int instr)
 				case JNZ:
 					opnd1 = yylex();
 					if(yylval.flag != REG){
-						exception("Illegal operand");
+						exception("Illegal operand", EX_ILLOPERAND, 0);
 					}
 					opnd2 = yylex();
 					if(yylval.flag != NUM) {
-						exception("Illegal operand");
+						exception("Illegal operand", EX_ILLOPERAND, 0);
 					}
 					if( getInteger(reg[opnd1]) != 0)
 					{
 						if(mode == USER_MODE) {
 							if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-								exception("Illegal address access");
+								exception("Illegal address access", EX_ILLMEM, 0);
 							}
 						}
 						storeInteger(reg[IP_REG], opnd2);
@@ -454,11 +482,11 @@ void Executeoneinstr(int instr)
 				case JMP:
 					opnd1 = yylex();
 					if(yylval.flag != NUM){
-						exception("Illegal operand");
+						exception("Illegal operand", EX_ILLOPERAND, 0);
 					}
 					if(mode == USER_MODE) {
 						if(opnd1 < 0 || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access");
+							exception("Illegal address access", EX_ILLMEM, 0);
 						}
 					}
 					storeInteger(reg[IP_REG], opnd1);
@@ -466,7 +494,7 @@ void Executeoneinstr(int instr)
 					break;
 				
 				default:
-					exception("Illegal Branch Instruction");
+					exception("Illegal Branch Instruction", EX_ILLINSTR, 0);
 				break;
 			}
 		}
@@ -478,10 +506,10 @@ void Executeoneinstr(int instr)
 			}*/
 			opnd1 = yylex();
 			if(getInteger(reg[SP_REG]) + 1 < 0 ){
-				exception("Stack Underflow");
+				exception("Stack Underflow", EX_ILLMEM, 0);
 			}
 			if(getInteger(reg[SP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-				exception("Stack Overflow");
+				exception("Stack Overflow", EX_ILLMEM, 0);
 			}
 			storeInteger(reg[SP_REG],getInteger(reg[SP_REG])+1);
 			translatedAddr = translate(getInteger(reg[SP_REG]));
@@ -499,7 +527,7 @@ void Executeoneinstr(int instr)
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], getInteger(reg[IP_REG]));
 				break;
 				default:
-					exception("Illegal operand");
+					exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 		break;
@@ -509,10 +537,10 @@ void Executeoneinstr(int instr)
 			}*/
 			opnd1 = yylex();
 			if(getInteger(reg[SP_REG]) < 0){
-				exception("Stack Underflow");
+				exception("Stack Underflow", EX_ILLMEM, 0);
 			}
 			if(getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-				exception("Stack Overflow");
+				exception("Stack Overflow", EX_ILLMEM, 0);
 			}
 			translatedAddr = translate(getInteger(reg[SP_REG]));
 			switch(yylval.flag){
@@ -527,12 +555,12 @@ void Executeoneinstr(int instr)
 				break;
 				case IP:
 					if(mode == USER_MODE){
-					  exception("Trying to modify IP in USER mode");
+					  exception("Trying to modify IP in USER mode", EX_ILLOPERAND, 0);
 					}
 					storeInteger(reg[IP_REG], getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]));
 				break;
 				default:
-					exception("Illegal operand");
+					exception("Illegal operand", EX_ILLOPERAND, 0);
 				break;
 			}
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG])-1);
@@ -544,14 +572,14 @@ void Executeoneinstr(int instr)
 			}*/
 			opnd1 = yylex();
 			if(yylval.flag != NUM) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			if(getInteger(reg[SP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-				exception("Stack Overflow");
+				exception("Stack Overflow", EX_ILLMEM, 0);
 			}
 			if(getInteger(reg[SP_REG]) + 1 < 0 )
 			{
-				exception("Stack Underflow");
+				exception("Stack Underflow", EX_ILLMEM, 0);
 			}
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
 			storeInteger(reg[IP_REG], getInteger(reg[IP_REG]) + 1);
@@ -565,10 +593,10 @@ void Executeoneinstr(int instr)
 			  exception("Cannot call RET in KERNEL mode");
 			}*/
 			if(getInteger(reg[SP_REG]) < 0){ 
-				exception("Stack Underflow");
+				exception("Stack Underflow", EX_ILLMEM, 0);
 			}
 			if(getInteger(reg[SP_REG])  >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-				exception("Stack Overflow");
+				exception("Stack Overflow", EX_ILLMEM, 0);
 			}
 			translatedAddr = translate(getInteger(reg[SP_REG]));
 			storeInteger(reg[IP_REG], getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]));
@@ -577,20 +605,20 @@ void Executeoneinstr(int instr)
 		break;
 		case INT:				//error: pid is used to return back and not kernel page table
 			if(mode == KERNEL_MODE){
-			  exception("Cannot call INT in KERNEL mode");
+			  exception("Cannot call INT in KERNEL mode", EX_ILLINSTR, 0);
 			}
 			opnd1 = yylex();
 			if(yylval.flag != NUM) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			if(opnd1 < 1 || opnd1 > 7) {				//error: might need to modify this
-				exception("Illegal INT instruction\n");
+				exception("Illegal INT instruction\n", EX_ILLOPERAND, 0);
 			}
 			if(getInteger(reg[SP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-				exception("Stack Overflow");
+				exception("Stack Overflow", EX_ILLMEM, 0);
 			}
 			if(getInteger(reg[SP_REG]) + 1 < 0 ){
-				exception("Stack Underflow");
+				exception("Stack Underflow", EX_ILLMEM, 0);
 			}
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
 			storeInteger(reg[IP_REG], getInteger(reg[IP_REG]) + 1);
@@ -606,13 +634,13 @@ void Executeoneinstr(int instr)
 		
 		case IRET:			//note: Modified here
 			if(mode == USER_MODE){
-				exception("Illegal Instruction");
+				exception("Illegal Instruction", EX_ILLINSTR, 0);
 			}
 			if(getInteger(reg[SP_REG]) < 0) {			//note:for sfety check for overflow
-				exception("Stack Underflow\n");
+				exception("Stack Underflow\n", EX_ILLMEM, 0);
 			}
 			if(getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {			//note:for sfety check for overflow
-				exception("Stack Overflow\n");
+				exception("Stack Overflow\n", EX_ILLMEM, 0);
 			}
 			mode = USER_MODE;
 			translatedAddr = translate(getInteger(reg[SP_REG]));
@@ -625,7 +653,7 @@ void Executeoneinstr(int instr)
 		case IN:
 			opnd1 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			int input;
 			scanf("%d",&input);
@@ -636,7 +664,7 @@ void Executeoneinstr(int instr)
 		case OUT:		//note: is there any need to print '\n' since string is present
 			opnd1 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			printf("%d\n",getInteger(reg[opnd1]));
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
@@ -675,11 +703,11 @@ void Executeoneinstr(int instr)
 		case STRCMP:				//note:modified here
 			opnd1 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			opnd2 = yylex();
 			if(yylval.flag != REG) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			opnd1Value = getInteger(reg[opnd1]);
 			opnd2Value = getInteger(reg[opnd2]);
@@ -693,11 +721,11 @@ void Executeoneinstr(int instr)
 		case STRCPY:				//note:modified here
 			opnd1 = yylex();
 			if(yylval.flag != REG && yylval.flag != SP) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			opnd2 = yylex();
 			if(yylval.flag != REG && yylval.flag != SP) {
-				exception("Illegal operand");
+				exception("Illegal operand", EX_ILLOPERAND, 0);
 			}
 			opnd1Value = (yylval.flag==REG ? getInteger(reg[opnd1]) : getInteger(reg[SP_REG]));
 			opnd2Value = (yylval.flag==REG ? getInteger(reg[opnd2]) : getInteger(reg[SP_REG]));
@@ -730,7 +758,7 @@ void Executeoneinstr(int instr)
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
-					exception("Illegal operand");
+					exception("Illegal operand", EX_ILLOPERAND, 0);
 					break;
 			}
 			
@@ -752,7 +780,7 @@ void Executeoneinstr(int instr)
 					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
-					exception("Illegal Operand");
+					exception("Illegal Operand", EX_ILLOPERAND, 0);
 					break;
 			}
 			
@@ -786,7 +814,7 @@ void Executeoneinstr(int instr)
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
-					exception("Illegal operand1");
+					exception("Illegal operand1", EX_ILLOPERAND, 0);
 					break;
 			}
 			
@@ -807,7 +835,7 @@ void Executeoneinstr(int instr)
 					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
-					exception("Illegal Operand2");
+					exception("Illegal Operand2", EX_ILLOPERAND, 0);
 					break;
 			}
 			
@@ -836,6 +864,6 @@ void Executeoneinstr(int instr)
 			scanf("%c",&ch);
 			break;
 		default:
-			exception("Illegal instruction\n");
+			exception("Illegal instruction\n", EX_ILLINSTR, 0);
 	}
 }

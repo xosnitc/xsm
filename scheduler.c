@@ -8,11 +8,11 @@
 void runInt0Code(){
 	struct address translated_addr;
 	if(getInteger(reg[SP_REG])  + 1 < 0){
-		exception("Stack underflow\n");
+		exception("Stack underflow\n", EX_ILLMEM, 0);
 		exit(0);
 		}
 	if(getInteger(reg[SP_REG])  + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-			exception("Stack overflow\n");
+			exception("Stack overflow\n", EX_ILLMEM, 0);
 			exit(0);
 		}	
 	storeInteger(reg[SP_REG], getInteger(reg[SP_REG])+1);

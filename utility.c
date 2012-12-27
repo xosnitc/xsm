@@ -62,10 +62,10 @@ void printRegisters() {
 				printf("EFR: %d\n",getInteger(reg[EFR_REG]));
 				break;		
 			default: 
-				if(i<=15)
+				if(i<T0)
 					printf("R%d: %d\n",i,getInteger(reg[i]));
 				else
-					printf("T%d: %d\n",i-16,getInteger(reg[i]));
+					printf("T%d: %d\n",i-T0,getInteger(reg[i]));
 				break;
 		}
 	}

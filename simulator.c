@@ -179,100 +179,223 @@ void Executeoneinstr(int instr)
 					break;
 				case MEM_REG:
 				{
-					char c;
 					if(mode == USER_MODE)
 					{
-						if(getInteger(reg[opnd2]) < 0 || getInteger(reg[opnd2]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
+						if(opnd2 > R7)
+						{
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getInteger(reg[opnd2]) < 0 || getInteger(reg[opnd2]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
+						{
+							exception("Illegal address access1", EX_ILLMEM, 0);
+							return;
+						}							
+					}
+					else
+					{
+						if(opnd2 > T3)
+						{
+							exception("Illegal register access", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getInteger(reg[opnd2]) < 0 || getInteger(reg[opnd2]) >= SIZE_OF_MEM)
 						{
 							exception("Illegal address access1", EX_ILLMEM, 0);
 							return;
 						}
-						else
-							translatedAddr = translate(getInteger(reg[opnd2]));
 					}
-					else
-						translatedAddr = translate(getInteger(reg[opnd2]));
-// 					printf("$$%d$$\n", getInteger(reg[opnd2]));
-// 					scanf("%c", &c);
+					translatedAddr = translate(getInteger(reg[opnd2]));
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					//mem[reg[opnd2]];
 					break;
 				}
-				case MEM_SP:							//note: modified here
-					/*if(mode == KERNEL_MODE){
-						exception("Cannot use memory reference with SP when in Kernel Mode");
-						return;
-					}
-					else if(getInteger(reg[SP_REG]) < STACK_START_ADDRESS || getInteger(reg[SP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
-					if(getInteger(reg[SP_REG]) < 0 || getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
+				case MEM_SP:			
+					if(getInteger(reg[SP_REG]) < 0 || (mode == USER_MODE && getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && getInteger(reg[SP_REG]) >= SIZE_OF_MEM) )
+					{
 						exception("Illegal address access.\nSP value is out of bounds.", EX_ILLMEM, 0);
 						return;
 					}
-
-					translatedAddr = translate(getInteger(reg[SP_REG]));
+					else
+						translatedAddr = translate(getInteger(reg[SP_REG]));
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
-				case MEM_BP:							//note:modified here
-					/*if(mode == KERNEL_MODE){
-						exception("Cannot use memory reference with BP when in Kernel Mode");
-						return;
-					}
-					else if(getInteger(reg[BP_REG]) < STACK_START_ADDRESS || getInteger(reg[BP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
-					if(getInteger(reg[BP_REG]) < 0 || getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
+				case MEM_BP:
+					if(getInteger(reg[BP_REG]) < 0 || (mode == USER_MODE && getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && getInteger(reg[BP_REG]) >= SIZE_OF_MEM) )
+					{
 						exception("Illegal address access.\nBP value is out of bounds.", EX_ILLMEM, 0);
 						return;
 					}
-
-					translatedAddr = translate(getInteger(reg[BP_REG]));
+					else
+						translatedAddr = translate(getInteger(reg[BP_REG]));
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
-				case MEM_IP:							//note:modified here. Also note that this will never happen
+				case MEM_IP:							
 					exception("Cannot use memory reference with IP in any mode", EX_ILLOPERAND, 0);
 					return;
 					break;
+				case MEM_PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getInteger(reg[PTBR_REG]) < 0 || getInteger(reg[PTBR_REG]) >= SIZE_OF_MEM)
+					{
+						exception("Illegal address access.\nRegister value is out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(getInteger(reg[PTBR_REG]));
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
+				case MEM_PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getInteger(reg[PTLR_REG]) < 0 || getInteger(reg[PTLR_REG]) >= SIZE_OF_MEM)
+					{
+						exception("Illegal address access.\nRegister value is out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(getInteger(reg[PTLR_REG]));
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
+				case MEM_EFR:							
+					exception("Cannot use memory reference with EFR in any mode", EX_ILLOPERAND, 0);
+					return;
+					break;
 				case MEM_DIR:
-					if(mode == USER_MODE) {
-						if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
-							return;
-						}
-						translatedAddr = translate(opnd2);
+					if(opnd2 < 0 || (mode == USER_MODE && opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && opnd2 >= SIZE_OF_MEM) )
+					{
+						exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						return;
 					}
 					else
 						translatedAddr = translate(opnd2);
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_REG:
-					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_IN)
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_SP || flag1 == MEM_DIR_BP || flag1 == MEM_DIR_PTBR || flag1 == MEM_DIR_PTLR || flag1 == MEM_DIR_IN)
 					{
 						exception("Illegal Operands", EX_ILLOPERAND, 0);
 						return;
 					}
+					else if(mode == USER_MODE && flag22 > R7)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;					
+					}
+					else if(mode == KERNEL_MODE && flag22 > T3)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}					 
 					opnd2 += getInteger(reg[flag22]);
-					if(mode == USER_MODE) {
-						if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							 exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
-							return;
-						}
-						translatedAddr = translate(opnd2);
+					if(opnd2 < 0 || (mode == USER_MODE && opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && opnd2 >= SIZE_OF_MEM) )
+					{
+						exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						return;
 					}
 					else
 						translatedAddr = translate(opnd2);
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
+				case MEM_DIR_SP:
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_SP || flag1 == MEM_DIR_BP || flag1 == MEM_DIR_PTBR || flag1 == MEM_DIR_PTLR || flag1 == MEM_DIR_IN)
+					{
+						exception("Illegal Operands", EX_ILLOPERAND, 0);
+						return;
+					}					 
+					opnd2 += getInteger(reg[SP_REG]);
+					if(opnd2 < 0 || (mode == USER_MODE && opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && opnd2 >= SIZE_OF_MEM) )
+					{
+						exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(opnd2);
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
+				case MEM_DIR_BP:
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_SP || flag1 == MEM_DIR_BP || flag1 == MEM_DIR_PTBR || flag1 == MEM_DIR_PTLR || flag1 == MEM_DIR_IN)
+					{
+						exception("Illegal Operands", EX_ILLOPERAND, 0);
+						return;
+					}					 
+					opnd2 += getInteger(reg[BP_REG]);
+					if(opnd2 < 0 || (mode == USER_MODE && opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && opnd2 >= SIZE_OF_MEM) )
+					{
+						exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(opnd2);
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
+				case MEM_DIR_IP:							
+					exception("Cannot use memory reference with IP in any mode", EX_ILLOPERAND, 0);
+					return;
+					break;
+				case MEM_DIR_PTBR:
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_SP || flag1 == MEM_DIR_BP || flag1 == MEM_DIR_PTBR || flag1 == MEM_DIR_PTLR || flag1 == MEM_DIR_IN)
+					{
+						exception("Illegal Operands", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}					 
+					opnd2 += getInteger(reg[PTBR_REG]);
+					if(opnd2 < 0 || opnd2 >= SIZE_OF_MEM) 
+					{
+						exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(opnd2);
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
+				case MEM_DIR_PTLR:
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_SP || flag1 == MEM_DIR_BP || flag1 == MEM_DIR_PTBR || flag1 == MEM_DIR_PTLR || flag1 == MEM_DIR_IN)
+					{
+						exception("Illegal Operands", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}					 
+					opnd2 += getInteger(reg[PTLR_REG]);
+					if(opnd2 < 0 || opnd2 >= SIZE_OF_MEM)
+					{
+						exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(opnd2);
+					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					break;
+				case MEM_DIR_EFR:							
+					exception("Cannot use memory reference with EFR in any mode", EX_ILLOPERAND, 0);
+					return;
+					break;
 				case MEM_DIR_IN:
-					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_IN)
+					if(flag1 == MEM_DIR_REG || flag1 == MEM_DIR_SP || flag1 == MEM_DIR_BP || flag1 == MEM_DIR_PTBR || flag1 == MEM_DIR_PTLR || flag1 == MEM_DIR_IN)
 					{
 						exception("Illegal Operands", EX_ILLOPERAND, 0);
 						return;
 					}
 					opnd2 += flag22;
-					if(mode == USER_MODE) {
-						if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							 exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
-							 return;
-						}
-						translatedAddr = translate(opnd2);
+					if(opnd2 < 0 || (mode == USER_MODE && opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && opnd2 >= SIZE_OF_MEM) )
+					{
+						 exception("Illegal address access.\nDirect Address value out of bounds.", EX_ILLMEM, 0);
+						 return;
 					}
 					else
 						translatedAddr = translate(opnd2);
@@ -285,82 +408,145 @@ void Executeoneinstr(int instr)
 			}
 			switch(flag1)
 			{
-				case REG: 
-					storeInteger(reg[opnd1], result);
+				case REG:
+					if(mode == USER_MODE && opnd1 > R7)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(opnd1 > T3)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}
+					else 
+						storeInteger(reg[opnd1], result);
 					break;
-				case SP: //can modify this to show error if result exceeds value that can be stored in SP.
+				case SP:
 					storeInteger(reg[SP_REG], result);
 					break;
-				case BP: //same as above. 
+				case BP: 
 					storeInteger(reg[BP_REG], result);
 					break;
-// 				case PID: //same as above. 
-// 					storeInteger(reg[PID_REG], result);
-// 					break;
 				case IP:
-					if(mode == USER_MODE) {
-						exception("Illegal operand IP", EX_ILLOPERAND, 0);
-						return;
-					}
-					else {	//note: modified here
-						//commented the lines 1. struct address translatedAddr = translate(result);and 2. mode = USER_MODE.
-// 						struct address translatedAddr = translate(result);
-						storeInteger(reg[IP_REG], result);
-// 						mode = USER_MODE;//error: why is this needed
-					}	
+					exception("Illegal operand IP. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;					
 					break;
-				case MEM_REG:
-					if(mode == USER_MODE) {
-						if(getInteger(reg[opnd1]) < 0 || getInteger(reg[opnd1]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access.\n Value in register out of bounds.", EX_ILLMEM, 0);
-							return;
-						}
-						translatedAddr = translate(getInteger(reg[opnd1]));
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
 					}
 					else
-						translatedAddr = translate(getInteger(reg[opnd1]));
-					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
-					//storeInteger(page[getInteger(page[KERNEL_PAGETBL_PAGENO].word[KERNEL_PAGETBL_START_WORD + STACK_PAGE])].word[getInteger(reg[opnd1])], result);
-					//mem[reg[opnd1]] = result;
+						storeInteger(reg[PTBR_REG], result);
 					break;
-				case MEM_SP:	//note:Modified here
-				    /*if(mode == KERNEL_MODE){
-						exception("Cannot use memory reference with SP when in Kernel Mode");
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-				    else if(getInteger(reg[SP_REG]) < STACK_START_ADDRESS || getInteger(reg[SP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
-				    if(getInteger(reg[SP_REG]) < 0 || getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
+					else
+						storeInteger(reg[PTLR_REG], result);
+					break;
+				case EFR:
+					exception("Illegal operand EFR. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;					
+					break;
+				case MEM_REG:
+					if(mode == USER_MODE)
+					{
+						if(opnd1 > R7)
+						{
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getInteger(reg[opnd1]) < 0 || getInteger(reg[opnd1]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
+						{
+							exception("Illegal address access1", EX_ILLMEM, 0);
+							return;
+						}							
+					}
+					else
+					{
+						if(opnd1 > T3)
+						{
+							exception("Illegal register access", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getInteger(reg[opnd1]) < 0 || getInteger(reg[opnd1]) >= SIZE_OF_MEM)
+						{
+							exception("Illegal address access1", EX_ILLMEM, 0);
+							return;
+						}
+					}
+					translatedAddr = translate(getInteger(reg[opnd1]));
+					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
+					break;
+				case MEM_SP:
+					if(getInteger(reg[SP_REG]) < 0 || (mode == USER_MODE && getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && getInteger(reg[SP_REG]) >= SIZE_OF_MEM) )
+					{
 						exception("Illegal address access.\nSP value is out of bounds.", EX_ILLMEM, 0);
 						return;
-					}  
-				    translatedAddr = translate(getInteger(reg[SP_REG]));
+					}
+					else					
+						translatedAddr = translate(getInteger(reg[SP_REG]));
 				    storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
-				case MEM_BP:	//note:Modified here
-				    /*if(mode == KERNEL_MODE){
-						exception("Cannot use memory reference with BP when in Kernel Mode");
-						return;
-					}
-				    else if(getInteger(reg[BP_REG]) < STACK_START_ADDRESS || getInteger(reg[BP_REG]) >= STACK_START_ADDRESS + PAGE_SIZE) {*/
-				    if(getInteger(reg[BP_REG]) < 0 || getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
+				case MEM_BP:
+				    if(getInteger(reg[BP_REG]) < 0 || (mode == USER_MODE && getInteger(reg[BP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && getInteger(reg[BP_REG]) >= SIZE_OF_MEM) )
+					{
 						exception("Illegal address access.\nBP value is out of bounds.", EX_ILLMEM, 0);
 						return;
 					} 
-				    translatedAddr = translate(getInteger(reg[BP_REG]));
+				    else
+				    	translatedAddr = translate(getInteger(reg[BP_REG]));
 				    storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
-				case MEM_IP:	//note:Modified here
-// 					storeInteger(page[getInteger(page[KERNEL_PAGETBL_PAGENO].word[KERNEL_PAGETBL_START_WORD + STACK_PAGE])].word[getInteger(reg[IP_REG])  % PAGE_SIZE], result);
+				case MEM_IP:
 				    exception("Cannot use memory reference with IP in any mode.", EX_ILLOPERAND, 0);
 				    return;
 					break;
+				case MEM_PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getInteger(reg[PTBR_REG]) < 0 || getInteger(reg[PTBR_REG]) >= SIZE_OF_MEM)
+					{
+						exception("Illegal address access.\nRegister value is out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(getInteger(reg[PTBR_REG]));
+					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
+					break;
+				case MEM_PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getInteger(reg[PTLR_REG]) < 0 || getInteger(reg[PTLR_REG]) >= SIZE_OF_MEM)
+					{
+						exception("Illegal address access.\nRegister value is out of bounds.", EX_ILLMEM, 0);
+						return;
+					}
+					else
+						translatedAddr = translate(getInteger(reg[PTLR_REG]));
+					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
+					break;
+				case MEM_EFR:							
+					exception("Cannot use memory reference with EFR in any mode", EX_ILLOPERAND, 0);
+					return;
+					break;
 				case MEM_DIR:
-					if(mode == USER_MODE) {
-						if(opnd1 < 0 || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access4", EX_ILLMEM, 0);
-							return;
-						}
-						translatedAddr = translate(opnd1);
+					if(opnd1 < 0 || (mode == USER_MODE && opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) || (mode == KERNEL_MODE && opnd1 >= SIZE_OF_MEM) )
+					{
+						exception("Illegal address access4", EX_ILLMEM, 0);
+						return;
 					}
 					else
 						translatedAddr = translate(opnd1);

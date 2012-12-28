@@ -57,5 +57,11 @@
 #define MEM_PTLR	54
 #define MEM_EFR		55
 
-#define MEM_DIR_REG	56
-#define MEM_DIR_IN	57
+#define MEM_DIR_REG		56
+#define MEM_DIR_SP		57
+#define MEM_DIR_BP		58
+#define MEM_DIR_IP		59
+#define MEM_DIR_PTBR	60
+#define MEM_DIR_PTLR	61
+#define MEM_DIR_EFR		62
+#define MEM_DIR_IN		63

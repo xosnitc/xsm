@@ -28,15 +28,28 @@ struct address translate (int virtual_addr) {
 }
 
 int getInteger(char* str ) {
-	return *((int*)str);
+	//return *((int*)str);
+	return atoi(str);
 }
 
 void storeInteger(char *str, int num) {
-	char *c = (char*)&num;
+	/*char *c = (char*)&num;
 	str[0] = *c;
 	str[1] = *(c + 1);
 	str[2] = *(c + 2);
-	str[3] = *(c + 3);
+	str[3] = *(c + 3);*/
+	sprintf(str,"%d",num);
+}
+
+int isInteger(char* str)
+{
+	int i=0;
+	if(str[i] == '+' || str[i] == '-')
+		i++;
+	for(;str[i]!='\0';i++)
+		if(!(str[i]>='0' && str[i]<='9'))
+			return 0;
+	return 1;
 }
 
 void printRegisters() {

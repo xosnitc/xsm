@@ -10,6 +10,7 @@ void emptyPage(int page_no);
 struct address translate (int virtual_addr);
 int getInteger(char* str );
 void storeInteger(char *str, int num);
+int isInteger(char* str);
 void printRegisters();
 void exception(char str[50], int ex_status, int fault_pageno);
 

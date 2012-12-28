@@ -658,7 +658,8 @@ void Executeoneinstr(int instr)
 		{
 			oper = yylval.flag;
 			opnd1 = yylex();
-			if(yylval.flag != REG) {
+			if(yylval.flag != REG)
+			{
 				exception("Illegal operand1", EX_ILLOPERAND, 0);
 				return;
 			}
@@ -667,7 +668,8 @@ void Executeoneinstr(int instr)
 				if(oper!= INR && oper!=DCR)
 				{
 					opnd2 = yylex();
-					if(yylval.flag != REG) {
+					if(yylval.flag != REG)
+					{
 						exception("Illegal operand", EX_ILLOPERAND, 0);
 						return;
 					}
@@ -684,7 +686,8 @@ void Executeoneinstr(int instr)
 						storeInteger(reg[opnd1],getInteger(reg[opnd1]) * getInteger(reg[opnd2]));
 						break;
 					case DIV: 
-						if(getInteger(reg[opnd2]) == 0) {
+						if(getInteger(reg[opnd2]) == 0)
+						{
 							exception("Divide by ZERO", EX_ILLOPERAND, 0);
 							return;
 						}

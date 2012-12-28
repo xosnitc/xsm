@@ -71,12 +71,21 @@ void printRegisters() {
 	}
 }
 
-void exception(char str[50], int ex_flag, int fault_pageno) {
+void exception(char str[50], int ex_status, int fault_pageno) {
 	if(getInteger(reg[IP_REG])<0 || getInteger(reg[IP_REG]) > SIZE_OF_MEM)
 	      printf("<ERROR:%s\nTried to access IP:%d\n", str, getInteger(reg[IP_REG]));
 	else
 	      printf("<ERROR:%d:%s> %s\n",getInteger(reg[IP_REG]),instruction, str);
-	//exit(0);
-	storeInteger(reg[EFR_REG], ex_flag);
-	storeInteger(reg[IP_REG], EXCEP_HANDLER * PAGE_SIZE);
+	if(mode == KERNEL_MODE)
+		exit(0);
+	else
+	{
+		int ex_flag;
+		ex_flag = getInteger(reg[IP_REG])*1000;
+		ex_flag += fault_pageno*10;
+		ex_flag += ex_status;
+		mode = KERNEL_MODE;
+		storeInteger(reg[EFR_REG], ex_flag);
+		storeInteger(reg[IP_REG], EXCEP_HANDLER * PAGE_SIZE);
+	}
 }

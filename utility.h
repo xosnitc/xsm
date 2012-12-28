@@ -11,6 +11,6 @@ struct address translate (int virtual_addr);
 int getInteger(char* str );
 void storeInteger(char *str, int num);
 void printRegisters();
-void exception(char str[50], int ex_flag, int fault_pageno);
+void exception(char str[50], int ex_status, int fault_pageno);
 
 #endif

@@ -63,8 +63,12 @@ void run(int db_mode, int intDisable) {
 			}
 		}
 		translatedAddr = translate(getInteger(reg[IP_REG]));
+		if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+			return;
 		strcpy(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
 		translatedAddr = translate(getInteger(reg[IP_REG])+1);
+		if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+			return;
 		strcat(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
 //  		printf("%s\n", instruction); // note:debugging
 		translatedAddr.word_no = -1;
@@ -206,6 +210,8 @@ void Executeoneinstr(int instr)
 						}
 					}
 					translatedAddr = translate(getInteger(reg[opnd2]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				}
@@ -217,6 +223,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(getInteger(reg[SP_REG]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_BP:
@@ -227,6 +235,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(getInteger(reg[BP_REG]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_IP:							
@@ -246,6 +256,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(getInteger(reg[PTBR_REG]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_PTLR:
@@ -261,6 +273,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(getInteger(reg[PTLR_REG]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_EFR:							
@@ -275,6 +289,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_REG:
@@ -301,6 +317,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_SP:
@@ -317,6 +335,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_BP:
@@ -333,6 +353,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_IP:							
@@ -358,6 +380,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_PTLR:
@@ -379,6 +403,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR_EFR:							
@@ -399,6 +425,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
@@ -482,6 +510,8 @@ void Executeoneinstr(int instr)
 						}
 					}
 					translatedAddr = translate(getInteger(reg[opnd1]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_SP:
@@ -492,6 +522,8 @@ void Executeoneinstr(int instr)
 					}
 					else					
 						translatedAddr = translate(getInteger(reg[SP_REG]));
+				    if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 				    storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_BP:
@@ -502,6 +534,8 @@ void Executeoneinstr(int instr)
 					} 
 				    else
 				    	translatedAddr = translate(getInteger(reg[BP_REG]));
+				    if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 				    storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_IP:
@@ -521,6 +555,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(getInteger(reg[PTBR_REG]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_PTLR:
@@ -536,6 +572,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(getInteger(reg[PTLR_REG]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_EFR:							
@@ -550,6 +588,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_REG:
@@ -571,6 +611,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_SP:
@@ -582,6 +624,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_BP:
@@ -593,6 +637,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_IP:							
@@ -613,6 +659,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_PTLR:
@@ -629,6 +677,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_EFR:							
@@ -644,6 +694,8 @@ void Executeoneinstr(int instr)
 					}
 					else
 						translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				default:
@@ -657,6 +709,8 @@ void Executeoneinstr(int instr)
 		case ARITH:
 		{
 			oper = yylval.flag;
+			
+			
 			opnd1 = yylex();
 			if(yylval.flag != REG)
 			{
@@ -846,9 +900,11 @@ void Executeoneinstr(int instr)
 			if(getInteger(reg[SP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
 				exception("Stack Overflow", EX_ILLMEM, 0);
 				return;
-			}
+			}			
+			translatedAddr = translate(getInteger(reg[SP_REG])+1);
+			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+				return;
 			storeInteger(reg[SP_REG],getInteger(reg[SP_REG])+1);
-			translatedAddr = translate(getInteger(reg[SP_REG]));
 			switch(yylval.flag){				//error: need to replace KERNEL constants with actual constants in the machine
 				case REG:
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], getInteger(reg[opnd1]));
@@ -883,6 +939,8 @@ void Executeoneinstr(int instr)
 				return;
 			}
 			translatedAddr = translate(getInteger(reg[SP_REG]));
+			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+				return;
 			switch(yylval.flag){
 				case REG:
 					storeInteger(reg[opnd1], getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]));
@@ -926,9 +984,11 @@ void Executeoneinstr(int instr)
 				exception("Stack Underflow", EX_ILLMEM, 0);
 				return;
 			}
+			translatedAddr = translate(getInteger(reg[SP_REG])+1);
+			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+				return;
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
 			storeInteger(reg[IP_REG], getInteger(reg[IP_REG]) + 1);
-			translatedAddr = translate(getInteger(reg[SP_REG]));
 			storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], getInteger(reg[IP_REG]));
 			storeInteger(reg[IP_REG], opnd1);
 			YY_FLUSH_BUFFER;
@@ -946,6 +1006,8 @@ void Executeoneinstr(int instr)
 				return;
 			}
 			translatedAddr = translate(getInteger(reg[SP_REG]));
+			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+				return;
 			storeInteger(reg[IP_REG], getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]));
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) - 1);
 			YY_FLUSH_BUFFER;
@@ -972,9 +1034,11 @@ void Executeoneinstr(int instr)
 				exception("Stack Underflow", EX_ILLMEM, 0);
 				return;
 			}
+			translatedAddr = translate(getInteger(reg[SP_REG])+1);
+			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+				return;
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
 			storeInteger(reg[IP_REG], getInteger(reg[IP_REG]) + 1);
-			translatedAddr = translate(getInteger(reg[SP_REG]));
 // 			printf("Pushing %d into %d\n",getInteger(reg[IP_REG]),getInteger(reg[SP_REG]));
 // 			printf("Calling INT %d\n", opnd1);
 // 			char sh;
@@ -999,6 +1063,8 @@ void Executeoneinstr(int instr)
 			}
 			mode = USER_MODE;
 			translatedAddr = translate(getInteger(reg[SP_REG]));
+			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+				return;
 // 			printf("tempCount1 = %llu\n", tempCount1);
 // 			printf("Popping %d from %d\n", getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]), getInteger(reg[SP_REG]));
 // 			printf("This is page %d and word %d\n",translatedAddr.page_no, translatedAddr.word_no );
@@ -1071,7 +1137,11 @@ void Executeoneinstr(int instr)
 			opnd1Value = getInteger(reg[opnd1]);
 			opnd2Value = getInteger(reg[opnd2]);
 			translatedAddr1 = translate(opnd1Value);
+			if(translatedAddr1.page_no == -1 && translatedAddr1.word_no == -1)
+				return;
 			translatedAddr2 = translate(opnd2Value);
+			if(translatedAddr2.page_no == -1 && translatedAddr2.word_no == -1)
+				return;
 // 			printf("---%s---\n---%s---\n",page[translatedAddr1.page_no].word[translatedAddr1.word_no],page[translatedAddr2.page_no].word[translatedAddr2.word_no]);
 			storeInteger(reg[opnd1],strcmp(page[translatedAddr1.page_no].word[translatedAddr1.word_no],page[translatedAddr2.page_no].word[translatedAddr2.word_no]));
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
@@ -1092,7 +1162,11 @@ void Executeoneinstr(int instr)
 			opnd2Value = (yylval.flag==REG ? getInteger(reg[opnd2]) : getInteger(reg[SP_REG]));
 //  			printf("opndVal1 = %d \n opndVal2 = %d\n", opnd1Value, opnd2Value);
 			translatedAddr1 = translate(opnd1Value);
+			if(translatedAddr1.page_no == -1 && translatedAddr1.word_no == -1)
+				return;
 			translatedAddr2 = translate(opnd2Value);
+			if(translatedAddr2.page_no == -1 && translatedAddr2.word_no == -1)
+				return;
 // 			printf("Page1 = %d\n offset1 = %d\n", translatedAddr1.page_no, translatedAddr1.word_no);
 // 			printf("Page2 = %d\n offset2 = %d\n", translatedAddr2.page_no, translatedAddr2.word_no);
 			strcpy(page[translatedAddr1.page_no].word[translatedAddr1.word_no], page[translatedAddr2.page_no].word[translatedAddr2.word_no]);
@@ -1112,10 +1186,14 @@ void Executeoneinstr(int instr)
 					break;
 				case MEM_REG:
 					translatedAddr = translate(getInteger(reg[opnd1]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR:
 					translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
@@ -1134,11 +1212,15 @@ void Executeoneinstr(int instr)
 					break;
 				case MEM_REG:
 					translatedAddr = translate(getInteger(reg[opnd2]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					//mem[reg[opnd2]];
 				break;
 				case MEM_DIR:
 					translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
@@ -1170,10 +1252,14 @@ void Executeoneinstr(int instr)
 					break;
 				case MEM_REG:
 					translatedAddr = translate(getInteger(reg[opnd1]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				case MEM_DIR:
 					translatedAddr = translate(opnd1);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
@@ -1191,11 +1277,15 @@ void Executeoneinstr(int instr)
 					break;
 				case MEM_REG:
 					translatedAddr = translate(getInteger(reg[opnd2]));
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					//mem[reg[opnd2]];
 					break;
 				case MEM_DIR:
 					translatedAddr = translate(opnd2);
+					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+						return;
 					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:

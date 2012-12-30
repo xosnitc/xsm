@@ -50,6 +50,8 @@
 #define NUM_PAGES		64
 #define SIZE_OF_MEM		(PAGE_SIZE * NUM_PAGES)         //note Entire memory
 #define WORDS_PERINSTR	2
+#define VALID		'1'
+#define INVALID		'0'
 
 #define EX_PAGEFAULT	0
 #define EX_ILLINSTR		1

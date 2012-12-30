@@ -17,8 +17,10 @@ void runInt0Code()
 		exception("Stack overflow\n", EX_ILLMEM, 0);
 		return;
 	}	
+	translated_addr = translate(getInteger(reg[SP_REG])+1);
+	if(translated_addr.page_no == -1 && translated_addr.word_no == -1)
+		return;
 	storeInteger(reg[SP_REG], getInteger(reg[SP_REG])+1);
-	translated_addr = translate(getInteger(reg[SP_REG]));
 	storeInteger(page[translated_addr.page_no].word[translated_addr.word_no], getInteger(reg[IP_REG]));
 // 	printf("Pushing %d into %d\n",getInteger(reg[IP_REG]),getInteger(reg[SP_REG]));
 	mode = KERNEL_MODE;

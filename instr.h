@@ -65,3 +65,5 @@
 #define MEM_DIR_PTLR	61
 #define MEM_DIR_EFR		62
 #define MEM_DIR_IN		63
+
+#define STRING		64

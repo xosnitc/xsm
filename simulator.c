@@ -105,6 +105,9 @@ void Executeoneinstr(int instr)
 	int opnd1Value;
 	int opnd2Value;
 	int i;
+	int type,type2;
+	char string[WORD_SIZE];
+	char str_result[WORD_SIZE],str_result2[WORD_SIZE];
 	char charRead;
 	struct address translatedAddr;
 	struct address translatedAddr1, translatedAddr2;;
@@ -120,6 +123,7 @@ void Executeoneinstr(int instr)
 			opnd2 = yylex();
 			flag2 = yylval.flag;
 			flag22 = yylval.flag2;
+			strcpy(string,yylval.data);
 			switch(flag2)
 			{
 				case REG:
@@ -134,10 +138,20 @@ void Executeoneinstr(int instr)
 						return;
 					}
 					else
-						result = getInteger(reg[opnd2]);
+					{
+						type = isInteger(reg[opnd2]);
+						if(type == TYPE_INT)
+							result = getInteger(reg[opnd2]);
+						else
+							strcpy(str_result,reg[opnd2]);
+					}
 					break;
-				case SP: 
-					result = getInteger(reg[SP_REG]);
+				case SP:
+					type = isInteger(reg[SP_REG]);
+					if(type == TYPE_INT)
+							result = getInteger(reg[SP_REG]);
+					else
+							strcpy(str_result,reg[SP_REG]);
 					break;
 				case BP: 
 					result = getInteger(reg[BP_REG]);
@@ -179,6 +193,9 @@ void Executeoneinstr(int instr)
 						result = getInteger(reg[EFR_REG]);
 					break;
 				case NUM:
+					result = opnd2;
+					break;
+				case STRING:
 					result = opnd2;
 					break;
 				case MEM_REG:

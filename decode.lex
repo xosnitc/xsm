@@ -156,19 +156,25 @@ T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0);
 					}
 			
 
-[\t ]*		; 
-OVER		{ //printf("<ERROR> HALT instruction missing\n"); 
-			printf("OVER!!!!!!!!\n"); 
-			yylval.flag=0; yylval.flag2=0; return(HALT);
-			}
-\n	        ;
+[\t ]*				; 
+OVER				{ //printf("<ERROR> HALT instruction missing\n"); 
+					printf("OVER!!!!!!!!\n"); 
+					yylval.flag=0; yylval.flag2=0; return(HALT);
+					}
+\".*\*				{
+						yytext[yyleng-1]='\0';
+						yytext++;
+						strcpy(yylval.data,yytext);
+						yylval.flag=0; yylval.flag2=0;
+						return(STRING);
+					}
+\n	        		;
 [A-Za-z0-9]+[\t ]*:	;
-\/\/.*		;
-[,:]		;
-[A-Za-z0-9]+	{ strcpy(yylval.data,yytext); yylval.flag=0; yylval.flag2=0; return(LABEL);}
-.		{ printf("<ERROR:%d: Unexpected symbol %s\n",getInteger(reg[IP_REG]),yytext);
-		  exit(0);
-		}
+\/\/.*				;
+[,:]				;
+.					{ printf("<ERROR:%d: Unexpected symbol %s\n",getInteger(reg[IP_REG]),yytext);
+					  exit(0);
+					}
 %%
 void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***
 {

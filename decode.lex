@@ -59,8 +59,7 @@ BRKP		{ yylval.flag=0; yylval.flag2=0; return(BRKP); }
 IRET 		{ yylval.flag=0; yylval.flag2=0; return(IRET);}
 SP 			{ yylval.flag=SP; yylval.flag2=0; return(0); }
 BP			{ yylval.flag=BP; yylval.flag2=0; return(0); }
-IP			{ /*printf("<ERROR:%d:> IP cannot be an arguement\n",getInteger(reg[IP_REG]));exit(0);*/
-		  	yylval.flag=IP; yylval.flag2=0; return(0); }
+IP			{ yylval.flag=IP; yylval.flag2=0; return(0); }
 PTBR		{ yylval.flag=PTBR; yylval.flag2=0; return(0); }
 PTLR		{ yylval.flag=PTLR; yylval.flag2=0; return(0); }
 EFR			{ yylval.flag=EFR; yylval.flag2=0; return(0); } 	
@@ -172,8 +171,7 @@ OVER				{ //printf("<ERROR> HALT instruction missing\n");
 [A-Za-z0-9]+[\t ]*:	;
 \/\/.*				;
 [,:]				;
-.					{ printf("<ERROR:%d: Unexpected symbol %s\n",getInteger(reg[IP_REG]),yytext);
-					  exit(0);
+.					{ 
 					}
 %%
 void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***

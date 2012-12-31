@@ -7,6 +7,11 @@
 void runInt0Code()
 {
 	struct address translated_addr;
+	if(getType(reg[SP_REG]) == TYPE_STR || getType(reg[PTLR_REG]) == TYPE_STR)
+	{
+		exception("Illegal Register value", EX_ILLMEM, 0);
+		return;
+	}
 	if(getInteger(reg[SP_REG])  + 1 < 0)
 	{
 		exception("Stack underflow\n", EX_ILLMEM, 0);

@@ -43,7 +43,6 @@
 #define NO_TEMP_REG  	4
 #define NO_SPECIAL_REG  6
 
-
 #define NUM_REGS		(NO_USER_REG + NO_SPECIAL_REG + NO_SYS_REG + NO_TEMP_REG)
 #define WORD_SIZE		16
 #define PAGE_SIZE		512

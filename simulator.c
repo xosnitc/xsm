@@ -51,6 +51,16 @@ void run(int db_mode, int intDisable) {
 	unsigned long long int tempCount=0;
 	while(1) {
 		struct address translatedAddr;
+		if(getType(reg[IP_REG]) == TYPE_STR)
+		{	
+		    exception("Illegal IP value. Not an address", EX_ILLMEM, 0);
+		    continue;
+		}
+		if(mode == USER_MODE && getType(reg[PTLR_REG]) == TYPE_STR)
+		{	
+		    exception("Illegal PTLR value", EX_ILLMEM, 0);
+		    continue;
+		}
 		if(getInteger(reg[IP_REG])<0 || getInteger(reg[IP_REG]) + 1 >SIZE_OF_MEM){			//checks if address is outside limits
 		    exception("IP Register value out of bounds", EX_ILLMEM, 0);
 		    continue;
@@ -110,11 +120,12 @@ void Executeoneinstr(int instr)
 	char str_result[WORD_SIZE],str_result2[WORD_SIZE];
 	char charRead;
 	struct address translatedAddr;
-	struct address translatedAddr1, translatedAddr2;;
+	struct address translatedAddr1, translatedAddr2;
 	switch(instr)
 	{
-		case START: storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);	//increment IP
-		break;
+		case START:			
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);	//increment IP
+			break;
 		case MOV:						//1st phase:get the value		2nd phase:store the value
 		{
 			opnd1 = yylex();
@@ -127,33 +138,28 @@ void Executeoneinstr(int instr)
 			switch(flag2)
 			{
 				case REG:
-					if(mode == USER_MODE && opnd2 > R7)
+					if(mode == USER_MODE && opnd2 >= NO_USER_REG)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(opnd2 > T3)
+					else if(opnd2 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 					{
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
 					}
 					else
 					{
-						type = isInteger(reg[opnd2]);
-						if(type == TYPE_INT)
-							result = getInteger(reg[opnd2]);
-						else
-							strcpy(str_result,reg[opnd2]);
+						type = getType(reg[opnd2]);
+						strcpy(str_result,reg[opnd2]);
 					}
 					break;
 				case SP:
-					type = isInteger(reg[SP_REG]);
-					if(type == TYPE_INT)
-							result = getInteger(reg[SP_REG]);
-					else
-							strcpy(str_result,reg[SP_REG]);
+					type = getType(reg[SP_REG]);
+					strcpy(str_result,reg[SP_REG]);
 					break;
 				case BP: 
+					type = getType(reg[BP_REG]);
 					result = getInteger(reg[BP_REG]);
 					break;
 				case IP:
@@ -202,7 +208,7 @@ void Executeoneinstr(int instr)
 				{
 					if(mode == USER_MODE)
 					{
-						if(opnd2 > R7)
+						if(opnd2 >= NO_USER_REG)
 						{
 							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 							return;
@@ -215,7 +221,7 @@ void Executeoneinstr(int instr)
 					}
 					else
 					{
-						if(opnd2 > T3)
+						if(opnd2 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 						{
 							exception("Illegal register access", EX_ILLOPERAND, 0);
 							return;
@@ -316,12 +322,12 @@ void Executeoneinstr(int instr)
 						exception("Illegal Operands", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(mode == USER_MODE && flag22 > R7)
+					else if(mode == USER_MODE && flag22 >= NO_USER_REG)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;					
 					}
-					else if(mode == KERNEL_MODE && flag22 > T3)
+					else if(mode == KERNEL_MODE && flag22 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 					{
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
@@ -454,12 +460,12 @@ void Executeoneinstr(int instr)
 			switch(flag1)
 			{
 				case REG:
-					if(mode == USER_MODE && opnd1 > R7)
+					if(mode == USER_MODE && opnd1 >= NO_USER_REG)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(opnd1 > T3)
+					else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 					{
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
@@ -502,7 +508,7 @@ void Executeoneinstr(int instr)
 				case MEM_REG:
 					if(mode == USER_MODE)
 					{
-						if(opnd1 > R7)
+						if(opnd1 >= NO_USER_REG)
 						{
 							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 							return;
@@ -515,7 +521,7 @@ void Executeoneinstr(int instr)
 					}
 					else
 					{
-						if(opnd1 > T3)
+						if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 						{
 							exception("Illegal register access", EX_ILLOPERAND, 0);
 							return;
@@ -610,12 +616,12 @@ void Executeoneinstr(int instr)
 					storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], result);
 					break;
 				case MEM_DIR_REG:
-					if(mode == USER_MODE && flag12 > R7)
+					if(mode == USER_MODE && flag12 >= NO_USER_REG)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;					
 					}
-					else if(mode == KERNEL_MODE && flag12 > T3)
+					else if(mode == KERNEL_MODE && flag12 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 					{
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;

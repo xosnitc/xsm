@@ -371,8 +371,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 70
-#define YY_END_OF_BUFFER 71
+#define YY_NUM_RULES 69
+#define YY_END_OF_BUFFER 70
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -382,23 +382,23 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[176] =
     {   0,
-       61,   61,   71,   69,   61,   65,   69,   68,   69,   69,
-       50,   63,   63,   63,   63,   63,   63,   63,   63,   63,
-       63,   63,   63,   63,   63,   63,   63,   63,   63,   69,
-       61,    0,   64,   50,   67,    0,   50,   66,   63,   63,
-       35,   63,   63,   63,   63,   63,   63,   12,   14,   11,
-       63,   23,   36,   63,   63,   63,   16,   15,   63,   10,
-       63,   63,   13,   63,   63,   63,   63,   63,   40,   63,
-       34,   63,   63,   41,    0,    0,    0,    0,    0,    0,
-        0,    0,    0,   67,    3,   63,   63,    9,    6,   39,
-       31,   63,    8,   30,   63,   18,   17,   63,    7,    2,
+       61,   61,   70,   68,   61,   64,   68,   67,   68,   68,
+       50,   68,   68,   68,   68,   68,   68,   68,   68,   68,
+       68,   68,   68,   68,   68,   68,   68,   68,   68,   68,
+       61,    0,   63,   50,   66,    0,   50,   65,    0,    0,
+       35,    0,    0,    0,    0,    0,    0,   12,   14,   11,
+        0,   23,   36,    0,    0,    0,   16,   15,    0,   10,
+        0,    0,   13,    0,    0,    0,    0,    0,   40,    0,
+       34,    0,    0,   41,    0,    0,    0,    0,    0,    0,
+        0,    0,    0,   66,    3,    0,    0,    9,    6,   39,
+       31,    0,    8,   30,    0,   18,   17,    0,    7,    2,
 
-        5,   24,   63,   20,   63,   63,   63,   22,   63,   63,
-       63,    4,    0,   51,    0,    0,    0,    0,    0,    0,
+        5,   24,    0,   20,    0,    0,    0,   22,    0,    0,
+        0,    4,    0,   51,    0,    0,    0,    0,    0,    0,
         0,   32,   21,   29,   33,   27,   62,   37,   38,   19,
-       63,   63,   63,    0,    0,   60,    0,    0,    0,    0,
+        0,    0,    0,    0,    0,   60,    0,    0,    0,    0,
         0,    0,    0,   43,    0,   44,    0,    0,   48,   42,
-       49,    1,   28,   63,   63,   55,    0,   56,    0,   52,
+       49,    1,   28,    0,    0,   55,    0,   56,    0,   52,
        54,   53,   47,    0,    0,   25,   26,   59,    0,    0,
        45,   46,   57,   58,    0
     } ;
@@ -1126,67 +1126,66 @@ YY_RULE_SETUP
 case 36:
 YY_RULE_SETUP
 #line 62 "decode.lex"
-{ /*printf("<ERROR:%d:> IP cannot be an arguement\n",getInteger(reg[IP_REG]));exit(0);*/
-		  	yylval.flag=IP; yylval.flag2=0; return(0); }
+{ yylval.flag=IP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 64 "decode.lex"
+#line 63 "decode.lex"
 { yylval.flag=PTBR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 65 "decode.lex"
+#line 64 "decode.lex"
 { yylval.flag=PTLR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 66 "decode.lex"
+#line 65 "decode.lex"
 { yylval.flag=EFR; yylval.flag2=0; return(0); } 	
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 67 "decode.lex"
+#line 66 "decode.lex"
 { yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext));	}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 68 "decode.lex"
+#line 67 "decode.lex"
 { yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 69 "decode.lex"
+#line 68 "decode.lex"
 { yylval.flag=MEM_SP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 70 "decode.lex"
+#line 69 "decode.lex"
 { yylval.flag=MEM_BP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 71 "decode.lex"
+#line 70 "decode.lex"
 { yylval.flag=MEM_IP; yylval.flag2=0; return(0); }		//error: Is this needed.
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 72 "decode.lex"
+#line 71 "decode.lex"
 { yylval.flag=MEM_PTBR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 73 "decode.lex"
+#line 72 "decode.lex"
 { yylval.flag=MEM_PTLR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 74 "decode.lex"
+#line 73 "decode.lex"
 { yylval.flag=MEM_EFR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 75 "decode.lex"
+#line 74 "decode.lex"
 {	
 				yylval.flag=MEM_REG; yylval.flag2=0; 
 				yytext[yyleng-1]='\0';
@@ -1196,7 +1195,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 81 "decode.lex"
+#line 80 "decode.lex"
 {
 				yylval.flag=MEM_REG; yylval.flag2=0; 
 				yytext[yyleng-1]='\0';
@@ -1206,12 +1205,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 87 "decode.lex"
+#line 86 "decode.lex"
 { yylval.flag=NUM; yylval.flag2=0; return(atoi(yytext)); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 88 "decode.lex"
+#line 87 "decode.lex"
 {
 				yylval.flag=MEM_DIR; yylval.flag2=0;
 				yytext[yyleng-1]='\0';
@@ -1221,7 +1220,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 94 "decode.lex"
+#line 93 "decode.lex"
 {
 					yylval.flag=MEM_DIR_REG;
 					yytext++;
@@ -1232,7 +1231,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 101 "decode.lex"
+#line 100 "decode.lex"
 {
 					yylval.flag=MEM_DIR_REG;
 					yytext++;
@@ -1243,7 +1242,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 108 "decode.lex"
+#line 107 "decode.lex"
 {
 					yylval.flag=MEM_DIR_SP;
 					yytext++;
@@ -1254,7 +1253,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 115 "decode.lex"
+#line 114 "decode.lex"
 {
 					yylval.flag=MEM_DIR_BP;
 					yytext++;
@@ -1265,7 +1264,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 122 "decode.lex"
+#line 121 "decode.lex"
 {
 					yylval.flag=MEM_DIR_IP;
 					yytext++;
@@ -1276,7 +1275,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 129 "decode.lex"
+#line 128 "decode.lex"
 {
 					yylval.flag=MEM_DIR_PTBR;
 					yytext++;
@@ -1287,7 +1286,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 136 "decode.lex"
+#line 135 "decode.lex"
 {
 					yylval.flag=MEM_DIR_PTLR;
 					yytext++;
@@ -1298,7 +1297,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 143 "decode.lex"
+#line 142 "decode.lex"
 {
 					yylval.flag=MEM_DIR_EFR;
 					yytext++;
@@ -1309,7 +1308,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 150 "decode.lex"
+#line 149 "decode.lex"
 {
 					yylval.flag=MEM_DIR_IN;
 					yytext++;
@@ -1320,12 +1319,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 159 "decode.lex"
+#line 158 "decode.lex"
 ; 
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 160 "decode.lex"
+#line 159 "decode.lex"
 { //printf("<ERROR> HALT instruction missing\n"); 
 					printf("OVER!!!!!!!!\n"); 
 					yylval.flag=0; yylval.flag2=0; return(HALT);
@@ -1333,12 +1332,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 164 "decode.lex"
-{ strcpy(yylval.data,yytext); yylval.flag=0; yylval.flag2=0; return(LABEL);}
-	YY_BREAK
-case 64:
-YY_RULE_SETUP
-#line 165 "decode.lex"
+#line 163 "decode.lex"
 {
 						yytext[yyleng-1]='\0';
 						yytext++;
@@ -1347,40 +1341,39 @@ YY_RULE_SETUP
 						return(STRING);
 					}
 	YY_BREAK
-case 65:
-/* rule 65 can match eol */
+case 64:
+/* rule 64 can match eol */
 YY_RULE_SETUP
-#line 172 "decode.lex"
+#line 170 "decode.lex"
+;
+	YY_BREAK
+case 65:
+YY_RULE_SETUP
+#line 171 "decode.lex"
 ;
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 173 "decode.lex"
+#line 172 "decode.lex"
 ;
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 174 "decode.lex"
+#line 173 "decode.lex"
 ;
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 175 "decode.lex"
-;
+#line 174 "decode.lex"
+{ 
+					}
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
 #line 176 "decode.lex"
-{ printf("<ERROR:%d: Unexpected symbol %s\n",getInteger(reg[IP_REG]),yytext);
-					  exit(0);
-					}
-	YY_BREAK
-case 70:
-YY_RULE_SETUP
-#line 179 "decode.lex"
 ECHO;
 	YY_BREAK
-#line 1384 "lex.yy.c"
+#line 1377 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2378,7 +2371,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 179 "decode.lex"
+#line 176 "decode.lex"
 
 
 void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***

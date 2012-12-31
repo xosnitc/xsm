@@ -48,8 +48,6 @@ CALL		{ yylval.flag=0; yylval.flag2=0; return(CALL); }
 RET			{ yylval.flag=0; yylval.flag2=0; return(RET); }
 IN    		{ yylval.flag=0; yylval.flag2=0; return(IN); }
 OUT			{ yylval.flag=0; yylval.flag2=0; return(OUT); }
-STRCMP		{ yylval.flag=0; yylval.flag2=0; return(STRCMP); }
-STRCPY		{ yylval.flag=0; yylval.flag2=0; return(STRCPY); }
 LOAD		{ yylval.flag=0; yylval.flag2=0; return(LOAD); }
 STORE		{ yylval.flag=0; yylval.flag2=0; return(STORE); }
 HALT		{ printf("OVER!!!!!!!!\n");yylval.flag=0; yylval.flag2=0; return(HALT); }
@@ -168,10 +166,9 @@ OVER				{ //printf("<ERROR> HALT instruction missing\n");
 						return(STRING);
 					}
 \n	        		;
-[A-Za-z0-9]+[\t ]*:	;
 \/\/.*				;
 [,:]				;
-.					{ 
+.					{	return(ILLTOKEN); 
 					}
 %%
 void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***

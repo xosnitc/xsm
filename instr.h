@@ -40,9 +40,9 @@
 #define DCR			39
 
 //Added
+#define STRING			40
+#define ILLTOKEN		41
 
-#define STRCMP		42
-#define STRCPY		43
 #define LOAD		44
 #define STORE		45
 #define INT			46
@@ -66,4 +66,4 @@
 #define MEM_DIR_EFR		62
 #define MEM_DIR_IN		63
 
-#define STRING		64
+

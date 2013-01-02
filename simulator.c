@@ -1622,22 +1622,50 @@ void Executeoneinstr(int instr)
 			YY_FLUSH_BUFFER;
 			break;
 		case RET:
-			if(getInteger(reg[SP_REG]) < 0){ 
-				exception("Stack Underflow", EX_ILLMEM, 0);
+			if(getType(reg[SP_REG]) == TYPE_STR)
+			{
+				exception("Illegal Register Value", EX_ILLMEM, 0);
 				return;
 			}
-			if(getInteger(reg[SP_REG])  >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
+			else if(mode == USER_MODE && getType(reg[PTLR_REG]) == TYPE_STR)
+			{
+				exception("Illegal Register Value", EX_ILLMEM, 0);
+				return;
+			}
+			else if(getInteger(reg[SP_REG]) < 0)
+			{
+				exception("Stack Underflow", EX_ILLMEM, 0);
+				return;
+			}			
+			else if(getInteger(reg[SP_REG]) >= SIZE_OF_MEM || (mode==USER_MODE && getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE))
+			{
 				exception("Stack Overflow", EX_ILLMEM, 0);
 				return;
 			}
 			translatedAddr = translate(getInteger(reg[SP_REG]));
 			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
 				return;
-			storeInteger(reg[IP_REG], getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]));
+			else if(getType(page[translatedAddr.page_no].word[translatedAddr.word_no]) == TYPE_STR)
+			{
+				exception("Illegal return address", EX_ILLMEM, 0);
+				return;
+			}
+			result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+			if(result < 0 || result >= SIZE_OF_MEM)
+			{
+				exception("Illegal return address", EX_ILLMEM, 0);
+				return;
+			}
+			else if(mode == USER_MODE && (getType(reg[PTLR_REG]) == TYPE_STR || result >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) )
+			{
+				exception("Illegal return address", EX_ILLMEM, 0);
+				return;
+			}			
+			storeInteger(reg[IP_REG], result);
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) - 1);
 			YY_FLUSH_BUFFER;
 			break;
-		case INT:				//error: pid is used to return back and not kernel page table
+		case INT:
 			if(mode == KERNEL_MODE){
 			  	exception("Cannot call INT in KERNEL mode", EX_ILLINSTR, 0);
 				return;

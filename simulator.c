@@ -1666,83 +1666,284 @@ void Executeoneinstr(int instr)
 			YY_FLUSH_BUFFER;
 			break;
 		case INT:
-			if(mode == KERNEL_MODE){
+			if(mode == KERNEL_MODE)
+			{
 			  	exception("Cannot call INT in KERNEL mode", EX_ILLINSTR, 0);
 				return;
 			}
 			opnd1 = yylex();
-			if(yylval.flag != NUM) {
+			if(yylval.flag != NUM)
+			{
 				exception("Illegal operand", EX_ILLOPERAND, 0);
 				return;
 			}
-			if(opnd1 < 1 || opnd1 > 7) {				//error: might need to modify this
+			else if(opnd1 < 1 || opnd1 > 7) 
+			{
 				exception("Illegal INT instruction\n", EX_ILLOPERAND, 0);
 				return;
 			}
-			if(getInteger(reg[SP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE){
-				exception("Stack Overflow", EX_ILLMEM, 0);
+			else if(getType(reg[SP_REG]) == TYPE_STR)
+			{
+				exception("Illegal Register Value", EX_ILLMEM, 0);
 				return;
 			}
-			if(getInteger(reg[SP_REG]) + 1 < 0 ){
+			else if(mode == USER_MODE && getType(reg[PTLR_REG]) == TYPE_STR)
+			{
+				exception("Illegal Register Value", EX_ILLMEM, 0);
+				return;
+			}
+			else if(getInteger(reg[SP_REG]) + 1 < 0)
+			{
 				exception("Stack Underflow", EX_ILLMEM, 0);
 				return;
-			}
+			}			
+			else if(getInteger(reg[SP_REG]) + 1 >= SIZE_OF_MEM || (mode==USER_MODE && getInteger(reg[SP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE))
+			{
+				exception("Stack Overflow", EX_ILLMEM, 0);
+				return;
+			}		
 			translatedAddr = translate(getInteger(reg[SP_REG])+1);
 			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
 				return;
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
-			storeInteger(reg[IP_REG], getInteger(reg[IP_REG]) + WORDS_PERINSTR);
-// 			printf("Pushing %d into %d\n",getInteger(reg[IP_REG]),getInteger(reg[SP_REG]));
-// 			printf("Calling INT %d\n", opnd1);
-// 			char sh;
-// 			scanf("%c", &sh);
-			storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no],getInteger(reg[IP_REG]));
+			storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no],getInteger(reg[IP_REG]) + WORDS_PERINSTR);
 			storeInteger(reg[IP_REG], (opnd1 + INT_START_PAGE) * PAGE_SIZE);
 			mode = KERNEL_MODE;
 			break;
 		
-		case IRET:			//note: Modified here
-			if(mode == USER_MODE){
-				exception("Illegal Instruction", EX_ILLINSTR, 0);
+		case IRET:
+			if(mode == USER_MODE)
+			{
+			  	exception("Call to Privileged Instruction IRET in USER mode", EX_ILLINSTR, 0);
 				return;
 			}
-			if(getInteger(reg[SP_REG]) < 0) {			//note:for sfety check for overflow
-				exception("Stack Underflow\n", EX_ILLMEM, 0);
+			else if(getType(reg[SP_REG]) == TYPE_STR)
+			{
+				exception("Illegal Register Value", EX_ILLMEM, 0);
 				return;
 			}
-			if(getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {			//note:for sfety check for overflow
-				exception("Stack Overflow\n", EX_ILLMEM, 0);
+			else if(mode == USER_MODE && getType(reg[PTLR_REG]) == TYPE_STR)
+			{
+				exception("Illegal Register Value", EX_ILLMEM, 0);
 				return;
 			}
-			mode = USER_MODE;
+			else if(getInteger(reg[SP_REG]) < 0)
+			{
+				exception("Stack Underflow", EX_ILLMEM, 0);
+				return;
+			}			
+			else if(getInteger(reg[SP_REG]) >= SIZE_OF_MEM || (mode==USER_MODE && getInteger(reg[SP_REG]) >= getInteger(reg[PTLR_REG]) * PAGE_SIZE))
+			{
+				exception("Stack Overflow", EX_ILLMEM, 0);
+				return;
+			}			
 			translatedAddr = translate(getInteger(reg[SP_REG]));
 			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
 				return;
-// 			printf("tempCount1 = %llu\n", tempCount1);
-// 			printf("Popping %d from %d\n", getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]), getInteger(reg[SP_REG]));
-// 			printf("This is page %d and word %d\n",translatedAddr.page_no, translatedAddr.word_no );
-			storeInteger(reg[IP_REG], getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]));
+			else if(getType(page[translatedAddr.page_no].word[translatedAddr.word_no]) == TYPE_STR)
+			{
+				exception("Illegal return address", EX_ILLMEM, 0);
+				return;
+			}
+			result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+			if(result < 0 || getType(reg[PTLR_REG]) == TYPE_STR || result >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
+			{
+				exception("Illegal return address", EX_ILLMEM, 0);
+				return;
+			}
+			storeInteger(reg[IP_REG], result);
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) - 1);
+			mode = USER_MODE;
 			break;
 		case IN:
 			opnd1 = yylex();
-			if(yylval.flag != REG) {
-				exception("Illegal operand", EX_ILLOPERAND, 0);
-				return;
+			switch(yylval.flag)
+			{
+				case REG:
+					if(mode == USER_MODE && opnd1 >= NO_USER_REG)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[opnd1]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = opnd1;
+					break;
+				case SP:
+					if(getType(reg[SP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = SP_REG;
+					break;
+				case BP:
+					if(getType(reg[BP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = BP_REG;
+					break;
+				case IP:
+					exception("Illegal operand IP. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTBR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTBR_REG;
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTLR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTLR_REG;
+					break;
+				case EFR:
+					exception("Illegal operand EFR. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;					
+					break;
+				default:
+					exception("Illegal operand", EX_ILLOPERAND, 0);
+					return;					
 			}
-			int input;
-			scanf("%d",&input);
-			storeInteger(reg[opnd1], input);
+			char input[WORD_SIZE];
+			scanf("%s",input);
+			input[WORD_SIZE-1] = '\0';
+			strcpy(reg[result], input);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		
 		case OUT:		//note: is there any need to print '\n' since string is present
 			opnd1 = yylex();
-			if(yylval.flag != REG) {
-				exception("Illegal operand", EX_ILLOPERAND, 0);
-				return;
+			switch(yylval.flag)
+			{
+				case REG:
+					if(mode == USER_MODE && opnd1 >= NO_USER_REG)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[opnd1]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = opnd1;
+					break;
+				case SP:
+					if(getType(reg[SP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = SP_REG;
+					break;
+				case BP:
+					if(getType(reg[BP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = BP_REG;
+					break;
+				case IP:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[IP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = IP_REG;
+					break;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTBR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTBR_REG;
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTLR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTLR_REG;
+					break;
+				case EFR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[EFR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = EFR_REG;					
+					break;
+				default:
+					exception("Illegal operand", EX_ILLOPERAND, 0);
+					return;					
 			}
-			printf("%d\n",getInteger(reg[opnd1]));
+			printf("%s\n",reg[result]);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		case LOAD:

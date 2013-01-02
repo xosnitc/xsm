@@ -1290,41 +1290,69 @@ void Executeoneinstr(int instr)
 			switch(oper)
 			{
 				case JZ:
-					opnd1 = yylex();
-					if(yylval.flag != REG || getType(reg[opnd1]) == TYPE_STR)
-					{
-						exception("Illegal operand", EX_ILLOPERAND, 0);
-						return;
-					}
-					opnd2 = yylex();
-					if(yylval.flag != NUM)
-					{
-						exception("Illegal operand", EX_ILLOPERAND, 0);
-						return;
-					}
-					if(getInteger(reg[opnd1]) == 0)
-					{
-						if(mode == USER_MODE)
-						{
-							if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
-							{
-								exception("Illegal address access", EX_ILLMEM, 0);
-								return;
-							}
-						}
-						storeInteger(reg[IP_REG], opnd2);
-						YY_FLUSH_BUFFER;
-					}
-					else
-						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
-					break;
-				
 				case JNZ:
 					opnd1 = yylex();
-					if(yylval.flag != REG || getType(reg[opnd1]) == TYPE_STR)
+					switch(yylval.flag)
 					{
-						exception("Illegal operand", EX_ILLOPERAND, 0);
-						return;
+						case REG:
+							if(mode == USER_MODE && opnd1 >= NO_USER_REG)
+							{
+								exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+								return;
+							}
+							else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+							{
+								exception("Illegal register access", EX_ILLOPERAND, 0);
+								return;
+							}
+							else
+								result = opnd1;
+							break;
+						case SP:
+							result = SP_REG;
+							break;
+						case BP:
+							result = BP_REG;
+							break;
+						case IP:
+							if(mode == USER_MODE)
+							{
+								exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+								return;
+							}
+							else
+								result = IP_REG;
+							break;
+						case PTBR:
+							if(mode == USER_MODE)
+							{
+								exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+								return;
+							}
+							else
+								result = PTBR_REG;
+							break;
+						case PTLR:
+							if(mode == USER_MODE)
+							{
+								exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+								return;
+							}
+							else
+								result = PTLR_REG;
+							break;
+						case EFR:
+							if(mode == USER_MODE)
+							{
+								exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+								return;
+							}
+							else
+								result = EFR_REG;
+							break;
+						default:
+							exception("Illegal operand", EX_ILLOPERAND, 0);
+							return;					
 					}
 					opnd2 = yylex();
 					if(yylval.flag != NUM)
@@ -1332,23 +1360,24 @@ void Executeoneinstr(int instr)
 						exception("Illegal operand", EX_ILLOPERAND, 0);
 						return;
 					}
-					if( getInteger(reg[opnd1]) != 0)
+					else if(opnd2 < 0 || opnd2 >= SIZE_OF_MEM)
 					{
-						if(mode == USER_MODE)
-						{
-							if(opnd2 < 0 || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
-							{
-								exception("Illegal address access", EX_ILLMEM, 0);
-								return;
-							}
-						}
+						exception("Illegal address access", EX_ILLMEM, 0);
+						return;
+					}
+					else if(mode == USER_MODE && (getType(reg[PTLR_REG]) == TYPE_STR || opnd2 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) )
+					{
+						exception("Illegal address access", EX_ILLMEM, 0);
+						return;
+					}					
+					if(getType(reg[result]) == TYPE_INT && ((oper==JZ && getInteger(reg[result]) == 0) ||(oper==JNZ && getInteger(reg[result]) != 0)))
+					{						
 						storeInteger(reg[IP_REG], opnd2);
 						YY_FLUSH_BUFFER;
 					}
 					else
 						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
-					break;
-				
+					break;				
 				case JMP:
 					opnd1 = yylex();
 					if(yylval.flag != NUM)
@@ -1356,17 +1385,19 @@ void Executeoneinstr(int instr)
 						exception("Illegal operand", EX_ILLOPERAND, 0);
 						return;
 					}
-					if(mode == USER_MODE)
+					else if(opnd1 < 0 || opnd1 >= SIZE_OF_MEM)
 					{
-						if(opnd1 < 0 || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-							exception("Illegal address access", EX_ILLMEM, 0);
+						exception("Illegal address access", EX_ILLMEM, 0);
 						return;
-						}
 					}
+					else if(mode == USER_MODE && (getType(reg[PTLR_REG]) == TYPE_STR || opnd1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) )
+					{
+						exception("Illegal address access", EX_ILLMEM, 0);
+						return;
+					}					
 					storeInteger(reg[IP_REG], opnd1);
 					YY_FLUSH_BUFFER;
-					break;
-				
+					break;				
 				default:
 					exception("Illegal Branch Instruction", EX_ILLINSTR, 0);
 					return;

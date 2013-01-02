@@ -902,80 +902,222 @@ void Executeoneinstr(int instr)
 		case ARITH:
 		{
 			oper = yylval.flag;			
-			opnd1 = yylex();
-			
-			if(yylval.flag != REG || getType(reg[opnd1]) == TYPE_STR)
+			opnd1 = yylex();			
+			switch(yylval.flag)
 			{
-				exception("Illegal operand1", EX_ILLOPERAND, 0);
-				return;
-			}
-			if(mode == USER_MODE && opnd1 >= NO_USER_REG)
-			{
-				exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
-				return;
-			}
-			else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
-			{
-				exception("Illegal register access", EX_ILLOPERAND, 0);
-				return;
-			}
-			else
-			{
-				if(oper!= INR && oper!=DCR)
-				{
-					opnd2 = yylex();
-					if(mode == USER_MODE && opnd2 >= NO_USER_REG)
+				case REG:
+					if(mode == USER_MODE && opnd1 >= NO_USER_REG)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(opnd2 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
 					{
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(yylval.flag != REG || getType(reg[opnd2]) == TYPE_STR)
+					else if(getType(reg[opnd1]) == TYPE_STR)
 					{
-						exception("Illegal operand", EX_ILLOPERAND, 0);
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
 						return;
-					}					
-				}
-				switch(oper)
+					}
+					else
+						result = opnd1;
+					break;
+				case SP:
+					if(getType(reg[SP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = SP_REG;
+					break;
+				case BP:
+					if(getType(reg[BP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = BP_REG;
+					break;
+				case IP:
+					exception("Illegal operand IP. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTBR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTBR_REG;
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTLR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTLR_REG;
+					break;
+				case EFR:
+					exception("Illegal operand EFR. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;					
+					break;
+				default:
+					exception("Illegal operand", EX_ILLOPERAND, 0);
+					return;					
+			}
+			if(oper!= INR && oper!=DCR)
+			{
+				opnd2 = yylex();
+				switch(yylval.flag)
 				{
-					case ADD:
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) + getInteger(reg[opnd2]));
-						break;			
-					case SUB:
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) - getInteger(reg[opnd2]));
-						break;
-					case MUL:
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) * getInteger(reg[opnd2]));
-						break;
-					case DIV: 
-						if(getInteger(reg[opnd2]) == 0)
+					case REG:
+						if(mode == USER_MODE && opnd2 >= NO_USER_REG)
 						{
-							exception("Divide by ZERO", EX_ILLOPERAND, 0);
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 							return;
 						}
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) / getInteger(reg[opnd2]));
+						else if(opnd2 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+						{
+							exception("Illegal register access", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getType(reg[opnd2]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = opnd2;
 						break;
-					case MOD:
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) % getInteger(reg[opnd2]));
+					case SP:
+						if(getType(reg[SP_REG]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = SP_REG;
 						break;
-					case INR:
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) + 1);
+					case BP:
+						if(getType(reg[BP_REG]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = BP_REG;
 						break;
-					case DCR:
-						storeInteger(reg[opnd1],getInteger(reg[opnd1]) - 1);
+					case IP:
+						if(mode == USER_MODE)
+						{
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getType(reg[IP_REG]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = IP_REG;
+						break;
+					case PTBR:
+						if(mode == USER_MODE)
+						{
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getType(reg[PTBR_REG]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = PTBR_REG;
+						break;
+					case PTLR:
+						if(mode == USER_MODE)
+						{
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getType(reg[PTLR_REG]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = PTLR_REG;
+						break;
+					case EFR:
+						if(mode == USER_MODE)
+						{
+							exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+							return;
+						}
+						else if(getType(reg[EFR_REG]) == TYPE_STR)
+						{
+							exception("Illegal operand1", EX_ILLOPERAND, 0);
+							return;
+						}
+						else
+							result2 = EFR_REG;
 						break;
 					default:
-						exception("Illegal Instruction", EX_ILLINSTR, 0);
-						return;
-						break;
-				}
-				storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
+						exception("Illegal operand", EX_ILLOPERAND, 0);
+						return;					
+				}				
 			}
-			
+			switch(oper)
+			{
+				case ADD:
+					storeInteger(reg[result],getInteger(reg[result]) + getInteger(reg[result2]));
+					break;			
+				case SUB:
+					storeInteger(reg[result],getInteger(reg[result]) - getInteger(reg[result2]));
+					break;
+				case MUL:
+					storeInteger(reg[result],getInteger(reg[result]) * getInteger(reg[result2]));
+					break;
+				case DIV: 
+					if(getInteger(reg[result2]) == 0)
+					{
+						exception("Divide by ZERO", EX_ILLOPERAND, 0);
+						return;
+					}
+					storeInteger(reg[result],getInteger(reg[result]) / getInteger(reg[result2]));
+					break;
+				case MOD:
+					storeInteger(reg[result],getInteger(reg[result]) % getInteger(reg[result2]));
+					break;
+				case INR:
+					storeInteger(reg[result],getInteger(reg[result]) + 1);
+					break;
+				case DCR:
+					storeInteger(reg[result],getInteger(reg[result]) - 1);
+					break;
+				default:
+					exception("Illegal Instruction", EX_ILLINSTR, 0);
+					return;
+					break;
+			}
+			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);			
 		}
 		break;
 		case LOGIC:

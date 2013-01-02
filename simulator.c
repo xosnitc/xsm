@@ -1842,7 +1842,7 @@ void Executeoneinstr(int instr)
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		
-		case OUT:		//note: is there any need to print '\n' since string is present
+		case OUT:
 			opnd1 = yylex();
 			switch(yylval.flag)
 			{
@@ -1947,138 +1947,238 @@ void Executeoneinstr(int instr)
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		case LOAD:
+		case STORE:	
+			if(mode == USER_MODE)
+			{
+			  	exception("Call to Privileged Instruction in USER mode", EX_ILLINSTR, 0);
+				return;
+			}
 			opnd1 = yylex();
 			flag1 = yylval.flag;
 			opnd2 = yylex();
-			flag2 = yylval.flag;
-			
-			switch(flag1){
-				case REG: 
-					result = getInteger(reg[opnd1]);
-					break;
-				case MEM_REG:
-					translatedAddr = translate(getInteger(reg[opnd1]));
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+			flag2 = yylval.flag;			
+			switch(flag1)
+			{
+				case REG:
+					if(mode == USER_MODE && opnd1 >= NO_USER_REG)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
-					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					break;
-				case MEM_DIR:
-					translatedAddr = translate(opnd1);
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+					}
+					else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
-					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
+					}
+					else if(getType(reg[opnd1]) == TYPE_STR)
+					{
+						exception("Illegal operand", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[opnd1]);
 					break;
+				case SP:
+					if(getType(reg[SP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[SP_REG]);
+					break;
+				case BP:
+					if(getType(reg[BP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[BP_REG]);
+					break;
+				case IP:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[IP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[IP_REG]);
+					break;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTBR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[PTBR_REG]);
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTLR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[PTLR_REG]);
+					break;
+				case EFR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[EFR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = getInteger(reg[EFR_REG]);
+					break;
+				case NUM:
+					result = opnd1;
+					break;				
 				default:
 					exception("Illegal operand", EX_ILLOPERAND, 0);
 					return;
 					break;
 			}
-			
 			switch(flag2)
 			{
 				case REG:
-					result2 = getInteger(reg[opnd2]);
+					if(mode == USER_MODE && opnd2 >= NO_USER_REG)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(opnd2 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[opnd2]) == TYPE_STR)
+					{
+						exception("Illegal operand", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[opnd2]);
+					break;
+				case SP:
+					if(getType(reg[SP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[SP_REG]);
+					break;
+				case BP:
+					if(getType(reg[BP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[BP_REG]);
+					break;
+				case IP:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[IP_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[IP_REG]);
+					break;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTBR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[PTBR_REG]);
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[PTLR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[PTLR_REG]);
+					break;
+				case EFR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(getType(reg[EFR_REG]) == TYPE_STR)
+					{
+						exception("Illegal operand1", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = getInteger(reg[EFR_REG]);
 					break;
 				case NUM:
 					result2 = opnd2;
-					break;
-				case MEM_REG:
-					translatedAddr = translate(getInteger(reg[opnd2]));
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-						return;
-					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					//mem[reg[opnd2]];
-				break;
-				case MEM_DIR:
-					translatedAddr = translate(opnd2);
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-						return;
-					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					break;
+					break;				
 				default:
-					exception("Illegal Operand", EX_ILLOPERAND, 0);
+					exception("Illegal operand", EX_ILLOPERAND, 0);
 					return;
 					break;
 			}
-			
-			
-			
-			
-// 			printf("ReadFromDisk: page = %d\n diskBlock = %d\n", result, result2);
-			readFromDisk(result, result2);
+			if(instr == LOAD)			
+				readFromDisk(result, result2);
+			else if(instr == STORE)
+				writeToDisk(result2, result);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;	
-		
-		case STORE:					//note:modified
-			opnd1 = yylex();
-			flag1 = yylval.flag;
-			opnd2 = yylex();
-			flag2 = yylval.flag;
-			
-			switch(flag1){
-				case REG: 
-					result = getInteger(reg[opnd1]);
-					break;
-				case NUM:
-					result = opnd1;
-					break;
-				case MEM_REG:
-					translatedAddr = translate(getInteger(reg[opnd1]));
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-						return;
-					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					break;
-				case MEM_DIR:
-					translatedAddr = translate(opnd1);
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-						return;
-					result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					break;
-				default:
-					exception("Illegal operand1", EX_ILLOPERAND, 0);
-					return;
-					break;
-			}
-			
-			switch(flag2){
-				case REG:
-					result2 = getInteger(reg[opnd2]);
-					break;
-				case NUM:
-					result2 = opnd2;
-					break;
-				case MEM_REG:
-					translatedAddr = translate(getInteger(reg[opnd2]));
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-						return;
-					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					//mem[reg[opnd2]];
-					break;
-				case MEM_DIR:
-					translatedAddr = translate(opnd2);
-					if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-						return;
-					result2 = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
-					break;
-				default:
-					exception("Illegal Operand2", EX_ILLOPERAND, 0);
-					return;
-					break;
-			}
-			
-			
-			
-			writeToDisk(result2, result);
-			//printf("%d\n", result);
-			//printf("%d\n", result2);
-			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
-			break;
-			
+				
 		case HALT:
+			if(mode == USER_MODE)
+			{
+			  	exception("Call to Privileged Instruction HALT in USER mode", EX_ILLINSTR, 0);
+				return;
+			}
 			printf("Machine is halting\n");
 			exit(0);
-			break;
-			
+			break;			
 		case END:
 			printf("Machine is exiting\n");
 			break;

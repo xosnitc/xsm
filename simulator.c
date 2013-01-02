@@ -1124,35 +1124,157 @@ void Executeoneinstr(int instr)
 		{
 			oper = yylval.flag;
 			opnd1 = yylex();
-			if(yylval.flag != REG && yylval.flag != BP && yylval.flag != SP) {
-				exception("Illegal operand", EX_ILLOPERAND, 0);
-				return;
-			}
+			switch(yylval.flag)
+			{
+				case REG:
+					if(mode == USER_MODE && opnd1 >= NO_USER_REG)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(opnd1 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = opnd1;
+					break;
+				case SP:
+					result = SP_REG;
+					break;
+				case BP:
+					result = BP_REG;
+					break;
+				case IP:
+					exception("Illegal operand IP. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTBR_REG;
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result = PTLR_REG;
+					break;
+				case EFR:
+					exception("Illegal operand EFR. Cannot alter readonly register", EX_ILLOPERAND, 0);
+					return;					
+					break;
+				default:
+					exception("Illegal operand", EX_ILLOPERAND, 0);
+					return;					
+			}			
 			opnd2 = yylex();
-			if(yylval.flag != REG) {
-				exception("Illegal operand", EX_ILLOPERAND, 0);
-				return;
-			}
+			switch(yylval.flag)
+			{
+				case REG:
+					if(mode == USER_MODE && opnd2 >= NO_USER_REG)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else if(opnd2 >= NO_USER_REG + NO_SYS_REG + NO_TEMP_REG)
+					{
+						exception("Illegal register access", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = opnd2;
+					break;
+				case SP:
+					result2 = SP_REG;
+					break;
+				case BP:
+					result2 = BP_REG;
+					break;
+				case IP:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = IP_REG;
+					break;
+				case PTBR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = PTBR_REG;
+					break;
+				case PTLR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = PTLR_REG;
+					break;
+				case EFR:
+					if(mode == USER_MODE)
+					{
+						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
+						return;
+					}
+					else
+						result2 = EFR_REG;
+					break;
+				default:
+					exception("Illegal operand", EX_ILLOPERAND, 0);
+					return;					
+			}			
 			switch(oper)
 			{
 				case LT:
-					
-					storeInteger(reg[opnd1],(getInteger(reg[opnd1]) < getInteger(reg[opnd2])?1:0));
+					if(getType(reg[result]) == getType(reg[result2]) && getType(reg[result]) == TYPE_INT)					
+						storeInteger(reg[result],(getInteger(reg[result]) < getInteger(reg[result2])?1:0));
+					else
+						storeInteger(reg[result],( strcmp(reg[result],reg[result2]) < 0?1:0 ));
 					break;
 				case GT:
-					storeInteger(reg[opnd1],(getInteger(reg[opnd1]) > getInteger(reg[opnd2])?1:0));
+					if(getType(reg[result]) == getType(reg[result2]) && getType(reg[result]) == TYPE_INT)
+						storeInteger(reg[result],(getInteger(reg[result]) > getInteger(reg[result2])?1:0));
+					else
+						storeInteger(reg[result],( strcmp(reg[result],reg[result2]) > 0?1:0 ));
 					break;	
 				case EQ:
-					storeInteger(reg[opnd1],(getInteger(reg[opnd1]) == getInteger(reg[opnd2])?1:0));
+					if(getType(reg[result]) == getType(reg[result2]) && getType(reg[result]) == TYPE_INT)
+						storeInteger(reg[result],(getInteger(reg[result]) == getInteger(reg[result2])?1:0));
+					else
+						storeInteger(reg[result],( strcmp(reg[result],reg[result2]) == 0?1:0 ));
 					break;
 				case NE:
-					storeInteger(reg[opnd1],(getInteger(reg[opnd1]) != getInteger(reg[opnd2])?1:0));
+					if(getType(reg[result]) == getType(reg[result2]) && getType(reg[result]) == TYPE_INT)
+						storeInteger(reg[result],(getInteger(reg[result]) != getInteger(reg[result2])?1:0));
+					else
+						storeInteger(reg[result],( strcmp(reg[result],reg[result2]) != 0?1:0 ));
 					break;	
 				case LE:
-					storeInteger(reg[opnd1],(getInteger(reg[opnd1]) <= getInteger(reg[opnd2])?1:0));
+					if(getType(reg[result]) == getType(reg[result2]) && getType(reg[result]) == TYPE_INT)
+						storeInteger(reg[result],(getInteger(reg[result]) <= getInteger(reg[result2])?1:0));
+					else
+						storeInteger(reg[result],( strcmp(reg[result],reg[result2]) <= 0?1:0 ));
 					break;
 				case GE:
-					storeInteger(reg[opnd1],(getInteger(reg[opnd1]) >= getInteger(reg[opnd2])?1:0));
+					if(getType(reg[result]) == getType(reg[result2]) && getType(reg[result]) == TYPE_INT)
+						storeInteger(reg[result],(getInteger(reg[result]) >= getInteger(reg[result2])?1:0));
+					else
+						storeInteger(reg[result],( strcmp(reg[result],reg[result2]) >= 0?1:0 ));
 					break;	
 				default:
 					exception("Illegal Instruction", EX_ILLINSTR, 0);

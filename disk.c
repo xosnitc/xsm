@@ -25,6 +25,11 @@
 int readFromDisk(int pageNumber, int blockNumber) {
 	int fd;
 	fd = open(DISK_NAME, O_RDONLY, 0666);
+	if(fd < 0)
+	{
+	  printf("Unable to Open Disk File\n");
+	  return -1;
+	}
 	lseek(fd,sizeof (PAGE)*blockNumber,SEEK_SET);
 	read(fd,&page[pageNumber],sizeof (PAGE));
 // 	print(page[pageNumber], pageNumber);
@@ -39,6 +44,11 @@ int readFromDisk(int pageNumber, int blockNumber) {
 int writeToDisk(int pageNumber, int blockNumber) {
 	int fd;
 	fd = open(DISK_NAME, O_WRONLY, 0777);
+	if(fd < 0)
+	{
+	  printf("Unable to Open Disk File\n");
+	  return -1;
+	}
 	lseek(fd,sizeof (PAGE)*blockNumber,SEEK_SET);
 	write(fd,&page[pageNumber],sizeof (PAGE));
 	close(fd);	

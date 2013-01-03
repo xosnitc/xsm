@@ -66,35 +66,36 @@ void printRegisters() {
 	for(i=0;i<NUM_REGS;i++) {
 		switch(i) {
 			case BP_REG: 
-				printf("BP: %s\n",reg[BP_REG]);
+				printf("BP: %s\t",reg[BP_REG]);
 				break;
 			case SP_REG: 
-				printf("SP: %s\n",reg[SP_REG]);
+				printf("SP: %s\t",reg[SP_REG]);
 				break;
 			case IP_REG: 
-				printf("IP: %s\n",reg[IP_REG]);
+				printf("IP: %s\t",reg[IP_REG]);
 				break;
 			case PTBR_REG: 
-				printf("PTBR: %s\n",reg[PTBR_REG]);
+				printf("PTBR: %s\t",reg[PTBR_REG]);
 				break;
 			case PTLR_REG: 
-				printf("PTLR: %s\n",reg[PTLR_REG]);
+				printf("PTLR: %s\t",reg[PTLR_REG]);
 				break;
 			case EFR_REG: 
-				printf("EFR: %s\n",reg[EFR_REG]);
+				printf("EFR: %s\t",reg[EFR_REG]);
 				break;		
 			default: 
 				if(i<T0)
-					printf("R%d: %s\n",i,reg[i]);
+					printf("R%d: %s\t",i,reg[i]);
 				else
-					printf("T%d: %s\n",i-T0,reg[i]);
+					printf("T%d: %s\t",i-T0,reg[i]);
 				break;
 		}
 	}
+	printf("\n");
 }
 
 void exception(char str[50], int ex_status, int fault_pageno) {
-	if(ex_status != EX_PAGEFAULT)
+	//if(ex_status != EX_PAGEFAULT)
 		printf("<ERROR:%d:%s> %s\n",getInteger(reg[IP_REG]),instruction, str);
 	if(mode == KERNEL_MODE)
 		exit(0);

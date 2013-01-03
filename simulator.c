@@ -47,10 +47,11 @@ main(int argc,char **argv){
 */
 void run(int db_mode, int intDisable) {
 	loadStartupCode();
-	int instr;
+	int instr,len;
 	unsigned long long int tempCount=0;
 	while(1) {
 		struct address translatedAddr;
+		bzero(instruction,WORD_SIZE * WORDS_PERINSTR);
 		if(getType(reg[IP_REG]) == TYPE_STR)
 		{	
 		    exception("Illegal IP value. Not an address", EX_ILLMEM, 0);
@@ -79,6 +80,9 @@ void run(int db_mode, int intDisable) {
 		translatedAddr = translate(getInteger(reg[IP_REG])+1);
 		if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
 			return;
+		len = strlen(instruction);
+		instruction[len]=' ';
+		instruction[len+1]='\0';
 		strcat(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
 //  		printf("%s\n", instruction); // note:debugging
 		translatedAddr.word_no = -1;
@@ -111,6 +115,7 @@ void run(int db_mode, int intDisable) {
 */
 void Executeoneinstr(int instr)
 {
+//	printf("\n%d:Enter:%d\n",getInteger(reg[IP_REG]),instr);
 	int opnd1,opnd2,flag1,flag12,flag2,flag22,oper,result, result2;
 	int opnd1Value;
 	int opnd2Value;
@@ -1770,31 +1775,14 @@ void Executeoneinstr(int instr)
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(getType(reg[opnd1]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
 					else
 						result = opnd1;
 					break;
 				case SP:
-					if(getType(reg[SP_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
-					else
-						result = SP_REG;
+					result = SP_REG;
 					break;
 				case BP:
-					if(getType(reg[BP_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
-					else
-						result = BP_REG;
+					result = BP_REG;
 					break;
 				case IP:
 					exception("Illegal operand IP. Cannot alter readonly register", EX_ILLOPERAND, 0);
@@ -1805,11 +1793,6 @@ void Executeoneinstr(int instr)
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(getType(reg[PTBR_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
 					else
 						result = PTBR_REG;
 					break;
@@ -1817,11 +1800,6 @@ void Executeoneinstr(int instr)
 					if(mode == USER_MODE)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
-						return;
-					}
-					else if(getType(reg[PTLR_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
 						return;
 					}
 					else
@@ -1857,41 +1835,19 @@ void Executeoneinstr(int instr)
 						exception("Illegal register access", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(getType(reg[opnd1]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
 					else
 						result = opnd1;
 					break;
 				case SP:
-					if(getType(reg[SP_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
-					else
-						result = SP_REG;
+					result = SP_REG;
 					break;
 				case BP:
-					if(getType(reg[BP_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
-					else
-						result = BP_REG;
+					result = BP_REG;
 					break;
 				case IP:
 					if(mode == USER_MODE)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
-						return;
-					}
-					else if(getType(reg[IP_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
 						return;
 					}
 					else
@@ -1903,11 +1859,6 @@ void Executeoneinstr(int instr)
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(getType(reg[PTBR_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
 					else
 						result = PTBR_REG;
 					break;
@@ -1917,11 +1868,6 @@ void Executeoneinstr(int instr)
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
 						return;
 					}
-					else if(getType(reg[PTLR_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
-						return;
-					}
 					else
 						result = PTLR_REG;
 					break;
@@ -1929,11 +1875,6 @@ void Executeoneinstr(int instr)
 					if(mode == USER_MODE)
 					{
 						exception("Illegal register access in user mode", EX_ILLOPERAND, 0);
-						return;
-					}
-					else if(getType(reg[EFR_REG]) == TYPE_STR)
-					{
-						exception("Illegal operand1", EX_ILLOPERAND, 0);
 						return;
 					}
 					else
@@ -2194,4 +2135,5 @@ void Executeoneinstr(int instr)
 			exception("Illegal instruction\n", EX_ILLINSTR, 0);
 			return;
 	}
+//	printf("\n%d:Exit:%d\n",getInteger(reg[IP_REG]),instr);
 }

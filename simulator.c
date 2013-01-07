@@ -87,6 +87,7 @@ void run(int db_mode, int intDisable) {
 //  		printf("%s\n", instruction); // note:debugging
 		translatedAddr.word_no = -1;
 		translatedAddr.page_no = -1;
+		YY_FLUSH_BUFFER;
 		instr = yylex();
 		if(mode == USER_MODE && !intDisable) 
 			tick();
@@ -115,7 +116,7 @@ void run(int db_mode, int intDisable) {
 */
 void Executeoneinstr(int instr)
 {
-//	printf("\n%d:Enter:%d\n",getInteger(reg[IP_REG]),instr);
+	printf("\n%d:Enter:%s\n",getInteger(reg[IP_REG]),instruction);
 	int opnd1,opnd2,flag1,flag12,flag2,flag22,oper,result, result2;
 	int opnd1Value;
 	int opnd2Value;
@@ -139,7 +140,10 @@ void Executeoneinstr(int instr)
 			opnd2 = yylex();
 			flag2 = yylval.flag;
 			flag22 = yylval.flag2;
+			bzero(string,16);
 			strcpy(string,yylval.data);
+			//printf("\n%d:MID:%s\nop1:%d\tfl1:%d\tfl2:%d\nop2:%d\tfl1:%d\tfl2:%d\n",getInteger(reg[IP_REG]),instruction,
+			//opnd1,flag1,flag12,opnd2,flag2,flag22);
 			switch(flag2)
 			{
 				case REG:
@@ -204,10 +208,10 @@ void Executeoneinstr(int instr)
 						strcpy(str_result,reg[EFR_REG]);
 					break;
 				case NUM:
-					result = opnd2;
+					sprintf(str_result,"%d",opnd2);
 					break;
 				case STRING:
-					result = opnd2;
+					strcpy(str_result,string);
 					break;
 				case MEM_REG:
 				{
@@ -538,7 +542,7 @@ void Executeoneinstr(int instr)
 					strcpy(str_result, page[translatedAddr.page_no].word[translatedAddr.word_no]);
 					break;
 				default:
-					exception("Illegal Operand", EX_ILLOPERAND, 0);
+					exception("Illegal Operand,default2", EX_ILLOPERAND, 0);
 					return;
 				break;
 			}
@@ -1378,7 +1382,7 @@ void Executeoneinstr(int instr)
 					if(getType(reg[result]) == TYPE_INT && ((oper==JZ && getInteger(reg[result]) == 0) ||(oper==JNZ && getInteger(reg[result]) != 0)))
 					{						
 						storeInteger(reg[IP_REG], opnd2);
-						YY_FLUSH_BUFFER;
+						
 					}
 					else
 						storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
@@ -1401,7 +1405,7 @@ void Executeoneinstr(int instr)
 						return;
 					}					
 					storeInteger(reg[IP_REG], opnd1);
-					YY_FLUSH_BUFFER;
+					
 					break;				
 				default:
 					exception("Illegal Branch Instruction", EX_ILLINSTR, 0);
@@ -1624,7 +1628,7 @@ void Executeoneinstr(int instr)
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
 			storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no], getInteger(reg[IP_REG]) + WORDS_PERINSTR);
 			storeInteger(reg[IP_REG], opnd1);
-			YY_FLUSH_BUFFER;
+			
 			break;
 		case RET:
 			if(getType(reg[SP_REG]) == TYPE_STR)
@@ -1668,7 +1672,7 @@ void Executeoneinstr(int instr)
 			}			
 			storeInteger(reg[IP_REG], result);
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) - 1);
-			YY_FLUSH_BUFFER;
+			
 			break;
 		case INT:
 			if(mode == KERNEL_MODE)
@@ -2117,6 +2121,7 @@ void Executeoneinstr(int instr)
 			  	exception("Call to Privileged Instruction HALT in USER mode", EX_ILLINSTR, 0);
 				return;
 			}
+			printf("OVER!!!!!!!!\n");
 			printf("Machine is halting\n");
 			exit(0);
 			break;			
@@ -2130,10 +2135,15 @@ void Executeoneinstr(int instr)
 			printf("Press X to exit or any other key to continue.....\n");
 			char ch;
 			scanf("%c",&ch);
+			if(ch=='X' || ch=='x')
+				exit(0);
+			else
+				storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		default:
 			exception("Illegal instruction\n", EX_ILLINSTR, 0);
 			return;
 	}
-//	printf("\n%d:Exit:%d\n",getInteger(reg[IP_REG]),instr);
+	
+	//printf("\n%d:Exit:%s\n",getInteger(reg[IP_REG]),instruction);
 }

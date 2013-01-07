@@ -5,6 +5,7 @@
 	#define YY_INPUT(buf,result,max_size)	\
 	{										\
 		int len;							\
+		bzero(buf,max_size);				\
 		strcpy(buf, instruction);			\
 		len = strlen(buf);					\
 		if(!strcmp(buf,"OVER\n"))			\
@@ -15,8 +16,9 @@
 		{									\
 			result = len;					\
 		}									\
-	}
-	char tempbuf[16];
+		printf("%s\n",buf);					\
+	}	
+	char tempbuf[16];	
 	void get_lexdata(char buf1[],char buf2[]);
 %}
 
@@ -24,7 +26,7 @@
 
 %%
 
-START		{ /*printf("START instruction found!! \n");*/return(START);}
+START		{ return(START);}
 MOV			{ yylval.flag=0; yylval.flag2=0; return(MOV); }
 ADD			{ yylval.flag=ADD; yylval.flag2=0; return(ARITH); }
 SUB			{ yylval.flag=SUB; yylval.flag2=0; return(ARITH); }
@@ -50,7 +52,7 @@ IN    		{ yylval.flag=0; yylval.flag2=0; return(IN); }
 OUT			{ yylval.flag=0; yylval.flag2=0; return(OUT); }
 LOAD		{ yylval.flag=0; yylval.flag2=0; return(LOAD); }
 STORE		{ yylval.flag=0; yylval.flag2=0; return(STORE); }
-HALT		{ printf("OVER!!!!!!!!\n");yylval.flag=0; yylval.flag2=0; return(HALT); }
+HALT		{ yylval.flag=0; yylval.flag2=0; return(HALT); }
 INT			{ yylval.flag=0; yylval.flag2=0; return(INT); }
 END			{ yylval.flag=0; yylval.flag2=0; return(END); }
 BRKP		{ yylval.flag=0; yylval.flag2=0; return(BRKP); }
@@ -151,20 +153,22 @@ T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0);
 					yylval.flag2=atoi(tempbuf);
 					return(atoi(yytext));					
 					}
-			
+					
+\"[^"]*				{
+						if(yytext[yyleng-1] == '\\')
+							yymore();
+						else
+						{
+							yytext[yyleng]='\0';
+							yytext++;
+							strcpy(yylval.data,yytext);
+							yylval.flag=0; yylval.flag2=0;
+							return(STRING);
+						}
+					}
 
 [\t ]*				; 
-OVER				{ //printf("<ERROR> HALT instruction missing\n"); 
-					printf("OVER!!!!!!!!\n"); 
-					yylval.flag=0; yylval.flag2=0; return(HALT);
-					}
-\".*\*				{
-						yytext[yyleng-1]='\0';
-						yytext++;
-						strcpy(yylval.data,yytext);
-						yylval.flag=0; yylval.flag2=0;
-						return(STRING);
-					}
+OVER				{ yylval.flag=0; yylval.flag2=0; return(HALT);	}
 \n	        		;
 \/\/.*				;
 [,:]				;

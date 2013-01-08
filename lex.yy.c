@@ -612,11 +612,10 @@ char *yytext;
 		{									\
 			result = len;					\
 		}									\
-		printf("%s\n",buf);					\
 	}	
 	char tempbuf[16];	
 	void get_lexdata(char buf1[],char buf2[]);
-#line 620 "lex.yy.c"
+#line 619 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -803,10 +802,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 27 "decode.lex"
+#line 26 "decode.lex"
 
 
-#line 810 "lex.yy.c"
+#line 809 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -897,232 +896,232 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 29 "decode.lex"
+#line 28 "decode.lex"
 { return(START);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "decode.lex"
+#line 29 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(MOV); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 31 "decode.lex"
+#line 30 "decode.lex"
 { yylval.flag=ADD; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 32 "decode.lex"
+#line 31 "decode.lex"
 { yylval.flag=SUB; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 33 "decode.lex"
+#line 32 "decode.lex"
 { yylval.flag=MUL; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 34 "decode.lex"
+#line 33 "decode.lex"
 { yylval.flag=DIV; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 35 "decode.lex"
+#line 34 "decode.lex"
 { yylval.flag=MOD; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 36 "decode.lex"
+#line 35 "decode.lex"
 { yylval.flag=INR; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 37 "decode.lex"
+#line 36 "decode.lex"
 { yylval.flag=DCR; yylval.flag2=0; return(ARITH); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 38 "decode.lex"
+#line 37 "decode.lex"
 { yylval.flag=LT; yylval.flag2=0; return(LOGIC); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 39 "decode.lex"
+#line 38 "decode.lex"
 { yylval.flag=GT; yylval.flag2=0; return(LOGIC); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 40 "decode.lex"
+#line 39 "decode.lex"
 { yylval.flag=EQ; yylval.flag2=0; return(LOGIC); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 41 "decode.lex"
+#line 40 "decode.lex"
 { yylval.flag=NE; yylval.flag2=0; return(LOGIC); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 42 "decode.lex"
+#line 41 "decode.lex"
 { yylval.flag=GE; yylval.flag2=0; return(LOGIC); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 43 "decode.lex"
+#line 42 "decode.lex"
 { yylval.flag=LE; yylval.flag2=0; return(LOGIC); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 44 "decode.lex"
+#line 43 "decode.lex"
 { yylval.flag=JZ; yylval.flag2=0; return(BRANCH); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 45 "decode.lex"
+#line 44 "decode.lex"
 { yylval.flag=JNZ; yylval.flag2=0; return(BRANCH); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 46 "decode.lex"
+#line 45 "decode.lex"
 { yylval.flag=JMP; yylval.flag2=0; return(BRANCH); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 47 "decode.lex"
+#line 46 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(PUSH); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 48 "decode.lex"
+#line 47 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(POP); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 49 "decode.lex"
+#line 48 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(CALL); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 50 "decode.lex"
+#line 49 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(RET); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 51 "decode.lex"
+#line 50 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(IN); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 52 "decode.lex"
+#line 51 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(OUT); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 53 "decode.lex"
+#line 52 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(LOAD); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 54 "decode.lex"
+#line 53 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(STORE); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 55 "decode.lex"
+#line 54 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(HALT); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 56 "decode.lex"
+#line 55 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(INT); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 57 "decode.lex"
+#line 56 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(END); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 58 "decode.lex"
+#line 57 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(BRKP); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 59 "decode.lex"
+#line 58 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(IRET);}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 60 "decode.lex"
+#line 59 "decode.lex"
 { yylval.flag=SP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 61 "decode.lex"
+#line 60 "decode.lex"
 { yylval.flag=BP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 62 "decode.lex"
+#line 61 "decode.lex"
 { yylval.flag=IP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 63 "decode.lex"
+#line 62 "decode.lex"
 { yylval.flag=PTBR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 64 "decode.lex"
+#line 63 "decode.lex"
 { yylval.flag=PTLR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 65 "decode.lex"
+#line 64 "decode.lex"
 { yylval.flag=EFR; yylval.flag2=0; return(0); } 	
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 66 "decode.lex"
+#line 65 "decode.lex"
 { yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext));	}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 67 "decode.lex"
+#line 66 "decode.lex"
 { yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 68 "decode.lex"
+#line 67 "decode.lex"
 { yylval.flag=MEM_SP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 69 "decode.lex"
+#line 68 "decode.lex"
 { yylval.flag=MEM_BP; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 70 "decode.lex"
+#line 69 "decode.lex"
 { yylval.flag=MEM_IP; yylval.flag2=0; return(0); }		//error: Is this needed.
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 71 "decode.lex"
+#line 70 "decode.lex"
 { yylval.flag=MEM_PTBR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 72 "decode.lex"
+#line 71 "decode.lex"
 { yylval.flag=MEM_PTLR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 73 "decode.lex"
+#line 72 "decode.lex"
 { yylval.flag=MEM_EFR; yylval.flag2=0; return(0); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 74 "decode.lex"
+#line 73 "decode.lex"
 {	
 				yylval.flag=MEM_REG; yylval.flag2=0; 
 				yytext[yyleng-1]='\0';
@@ -1132,7 +1131,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 80 "decode.lex"
+#line 79 "decode.lex"
 {
 				yylval.flag=MEM_REG; yylval.flag2=0; 
 				yytext[yyleng-1]='\0';
@@ -1142,12 +1141,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 86 "decode.lex"
+#line 85 "decode.lex"
 { yylval.flag=NUM; yylval.flag2=0; return(atoi(yytext)); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 87 "decode.lex"
+#line 86 "decode.lex"
 {
 				yylval.flag=MEM_DIR; yylval.flag2=0;
 				yytext[yyleng-1]='\0';
@@ -1157,7 +1156,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 93 "decode.lex"
+#line 92 "decode.lex"
 {
 					yylval.flag=MEM_DIR_REG;
 					yytext++;
@@ -1168,7 +1167,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 100 "decode.lex"
+#line 99 "decode.lex"
 {
 					yylval.flag=MEM_DIR_REG;
 					yytext++;
@@ -1179,7 +1178,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 107 "decode.lex"
+#line 106 "decode.lex"
 {
 					yylval.flag=MEM_DIR_SP;
 					yytext++;
@@ -1190,7 +1189,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 114 "decode.lex"
+#line 113 "decode.lex"
 {
 					yylval.flag=MEM_DIR_BP;
 					yytext++;
@@ -1201,7 +1200,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 121 "decode.lex"
+#line 120 "decode.lex"
 {
 					yylval.flag=MEM_DIR_IP;
 					yytext++;
@@ -1212,7 +1211,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 128 "decode.lex"
+#line 127 "decode.lex"
 {
 					yylval.flag=MEM_DIR_PTBR;
 					yytext++;
@@ -1223,7 +1222,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 135 "decode.lex"
+#line 134 "decode.lex"
 {
 					yylval.flag=MEM_DIR_PTLR;
 					yytext++;
@@ -1234,7 +1233,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 142 "decode.lex"
+#line 141 "decode.lex"
 {
 					yylval.flag=MEM_DIR_EFR;
 					yytext++;
@@ -1245,7 +1244,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 149 "decode.lex"
+#line 148 "decode.lex"
 {
 					yylval.flag=MEM_DIR_IN;
 					yytext++;
@@ -1257,7 +1256,7 @@ YY_RULE_SETUP
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
-#line 157 "decode.lex"
+#line 156 "decode.lex"
 {
 						if(yytext[yyleng-1] == '\\')
 							yymore();
@@ -1266,49 +1265,49 @@ YY_RULE_SETUP
 							yytext[yyleng]='\0';
 							yytext++;
 							strcpy(yylval.data,yytext);
-							yylval.flag=0; yylval.flag2=0;
-							return(STRING);
+							yylval.flag=STRING; yylval.flag2=0;
+							return(0);
 						}
 					}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 170 "decode.lex"
+#line 169 "decode.lex"
 ; 
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 171 "decode.lex"
+#line 170 "decode.lex"
 { yylval.flag=0; yylval.flag2=0; return(HALT);	}
 	YY_BREAK
 case 62:
 /* rule 62 can match eol */
 YY_RULE_SETUP
-#line 172 "decode.lex"
+#line 171 "decode.lex"
 ;
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 173 "decode.lex"
+#line 172 "decode.lex"
 ;
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 174 "decode.lex"
+#line 173 "decode.lex"
 ;
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 175 "decode.lex"
+#line 174 "decode.lex"
 {	return(ILLTOKEN); 
 					}
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 177 "decode.lex"
+#line 176 "decode.lex"
 ECHO;
 	YY_BREAK
-#line 1312 "lex.yy.c"
+#line 1311 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2306,7 +2305,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 177 "decode.lex"
+#line 176 "decode.lex"
 
 
 void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***

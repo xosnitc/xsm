@@ -16,7 +16,6 @@
 		{									\
 			result = len;					\
 		}									\
-		printf("%s\n",buf);					\
 	}	
 	char tempbuf[16];	
 	void get_lexdata(char buf1[],char buf2[]);
@@ -162,8 +161,8 @@ T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0);
 							yytext[yyleng]='\0';
 							yytext++;
 							strcpy(yylval.data,yytext);
-							yylval.flag=0; yylval.flag2=0;
-							return(STRING);
+							yylval.flag=STRING; yylval.flag2=0;
+							return(0);
 						}
 					}
 

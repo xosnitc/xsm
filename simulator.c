@@ -52,6 +52,7 @@ void run(int db_mode, int intDisable) {
 	while(1) {
 		struct address translatedAddr;
 		bzero(instruction,WORD_SIZE * WORDS_PERINSTR);
+		YY_FLUSH_BUFFER;
 		if(getType(reg[IP_REG]) == TYPE_STR)
 		{	
 		    exception("Illegal IP value. Not an address", EX_ILLMEM, 0);
@@ -87,7 +88,6 @@ void run(int db_mode, int intDisable) {
 //  		printf("%s\n", instruction); // note:debugging
 		translatedAddr.word_no = -1;
 		translatedAddr.page_no = -1;
-		YY_FLUSH_BUFFER;
 		instr = yylex();
 		if(mode == USER_MODE && !intDisable) 
 			tick();
@@ -116,7 +116,7 @@ void run(int db_mode, int intDisable) {
 */
 void Executeoneinstr(int instr)
 {
-	printf("\n%d:Enter:%s\n",getInteger(reg[IP_REG]),instruction);
+//	printf("\n%d:Enter:%s\n",getInteger(reg[IP_REG]),instruction);
 	int opnd1,opnd2,flag1,flag12,flag2,flag22,oper,result, result2;
 	int opnd1Value;
 	int opnd2Value;

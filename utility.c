@@ -22,6 +22,7 @@ struct address translate (int virtual_addr) {
 		{ 
 			resultant_addr.page_no = getInteger(page[page_entry / PAGE_SIZE].word[page_entry % PAGE_SIZE] );
 			resultant_addr.word_no = virtual_addr % PAGE_SIZE;
+			page[(page_entry+1) / PAGE_SIZE].word[(page_entry+1) % PAGE_SIZE][0] = REFERENCED;
 		}
 		else
 		{

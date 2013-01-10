@@ -52,6 +52,8 @@
 
 #define VALID			'1'
 #define INVALID			'0'
+#define REFERENCED		'1'
+#define UNREFERENCED		'0'
 
 #define TYPE_INT		1
 #define TYPE_STR		0

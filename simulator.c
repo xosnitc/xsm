@@ -1745,7 +1745,8 @@ void Executeoneinstr(int instr)
 			{
 				exception("Stack Overflow", EX_ILLMEM, 0);
 				return;
-			}			
+			}
+			mode = USER_MODE;			
 			translatedAddr = translate(getInteger(reg[SP_REG]));
 			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
 				return;
@@ -1761,8 +1762,7 @@ void Executeoneinstr(int instr)
 				return;
 			}
 			storeInteger(reg[IP_REG], result);
-			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) - 1);
-			mode = USER_MODE;
+			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) - 1);			
 			break;
 		case IN:
 			opnd1 = yylex();

@@ -1,0 +1,24 @@
+XSM Simulator
+=============
+
+Introduction :
+The XSM (eXperimental String Machine) Simulator is used to simulate the XSM hardware
+
+
+Installation
+
+Prerequisites :
+-------------
+	• GCC (GNU project C and C++ compiler)
+	• Flex / Lex (Fast Lexical Analyser Generator)
+	• Bison / Yacc (GNU Project Parser Generator)
+
+Compiling and Running :
+---------------------
+Run the following commands to compile and run the XSM Simulator
+	1. make
+	2. ./xsm <optional-flags> <path-to-file>
+	
+The <optional-flags> can be :
+	• --id : This flag disables the timer interrupt for the machine
+	• --db : This flag sets the machine into DEBUG mode

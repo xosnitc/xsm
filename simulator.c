@@ -2,33 +2,33 @@
 
 //unsigned long long int tempCount1=0;
 /*
-   note : -db for debug mode -id for disabling timer interrupt
+   note : -g for debug mode -d for disabling timer interrupt
 */
 main(int argc,char **argv){
 	int db_mode=0, intDisable=0;
 	if(argc >= 2)
 	{
-	  if(strcmp(argv[1],"-db") == 0)
-	    db_mode = 1;
-	  else if(strcmp(argv[1], "-id") == 0)
-	    intDisable = 1;
-	  else
-	  {
-	    printf("Invalid arguement %s", argv[1]);
-	    exit(0);
-	  }
+		if(strcmp(argv[1],"--debug") == 0 || strcmp(argv[1],"-g") == 0)
+			db_mode = 1;
+		else if(strcmp(argv[1], "--disable-timer") == 0 || strcmp(argv[1], "-d") == 0)
+			intDisable = 1;
+		else
+		{
+			printf("Invalid arguement %s", argv[1]);
+			exit(0);
+		}
 	}
 	if(argc == 3)
 	{
-	  if(strcmp(argv[2],"-db") == 0)
-	    db_mode = 1;
-	  else if(strcmp(argv[2], "-id") == 0)
-	    intDisable = 1;
-	  else
-	  {
-	    printf("Invalid arguement %s", argv[2]);
-	    exit(0);
-	  }
+		if(strcmp(argv[2],"--debug") == 0 || strcmp(argv[2],"-g") == 0)
+			db_mode = 1;
+		else if(strcmp(argv[2], "--disable-timer") == 0 || strcmp(argv[2], "-id") == 0)
+			intDisable = 1;
+		else
+		{
+			printf("Invalid arguement %s", argv[2]);
+			exit(0);
+		}
 	}
 	initializeRegs();  
 	run(db_mode, intDisable);	

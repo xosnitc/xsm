@@ -96,10 +96,11 @@ void printRegisters() {
 }
 
 void exception(char str[50], int ex_status, int fault_pageno) {
-	//if(ex_status != EX_PAGEFAULT)
+	if(mode == KERNEL_MODE || db_mode)
+	{
 		printf("<ERROR:%d:%s> %s\n",getInteger(reg[IP_REG]),instruction, str);
-	if(mode == KERNEL_MODE)
 		exit(0);
+	}
 	else
 	{
 		int ex_flag;

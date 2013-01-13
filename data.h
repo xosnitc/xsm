@@ -73,6 +73,7 @@ struct {
 char reg[NUM_REGS][WORD_SIZE];
 char instruction[WORD_SIZE * WORDS_PERINSTR];
 int mode;
+int db_mode;
 
 typedef struct {
 	char word[PAGE_SIZE][WORD_SIZE];

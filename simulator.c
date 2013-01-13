@@ -5,7 +5,8 @@
    note : -g for debug mode -d for disabling timer interrupt
 */
 main(int argc,char **argv){
-	int db_mode=0, intDisable=0;
+	int intDisable=0;
+	db_mode=0;
 	if(argc >= 2)
 	{
 		if(strcmp(argv[1],"--debug") == 0 || strcmp(argv[1],"-g") == 0)

@@ -85,13 +85,11 @@ void run(int db_mode, int intDisable) {
 		instruction[len]=' ';
 		instruction[len+1]='\0';
 		strcat(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
-//  		printf("%s\n", instruction); // note:debugging
 		translatedAddr.word_no = -1;
 		translatedAddr.page_no = -1;
 		instr = yylex();
 		if(mode == USER_MODE && !intDisable) 
 			tick();
-		//tempCount1++;
 		Executeoneinstr(instr);
 		if(db_mode) {
 			printf("Values in registers after executing instruction :%s\n", instruction);
@@ -116,7 +114,7 @@ void run(int db_mode, int intDisable) {
 */
 void Executeoneinstr(int instr)
 {
-//	printf("\n%d:Enter:%s\n",getInteger(reg[IP_REG]),instruction);
+//	printf("\n%d:Enter:%s\n",getInteger(reg[IP_REG]),instruction); //Debugging
 	int opnd1,opnd2,flag1,flag12,flag2,flag22,oper,result, result2;
 	int opnd1Value;
 	int opnd2Value;
@@ -143,7 +141,7 @@ void Executeoneinstr(int instr)
 			bzero(string,16);
 			strcpy(string,yylval.data);
 			//printf("\n%d:MID:%s\nop1:%d\tfl1:%d\tfl2:%d\nop2:%d\tfl1:%d\tfl2:%d\n",getInteger(reg[IP_REG]),instruction,
-			//opnd1,flag1,flag12,opnd2,flag2,flag22);
+			//opnd1,flag1,flag12,opnd2,flag2,flag22); //Debugging
 			switch(flag2)
 			{
 				case REG:
@@ -2121,12 +2119,10 @@ void Executeoneinstr(int instr)
 			  	exception("Call to Privileged Instruction HALT in USER mode", EX_ILLINSTR, 0);
 				return;
 			}
-			printf("OVER!!!!!!!!\n");
 			printf("Machine is halting\n");
 			exit(0);
 			break;			
 		case END:
-			printf("Machine is exiting\n");
 			break;
 		
 		case BRKP:
@@ -2144,6 +2140,4 @@ void Executeoneinstr(int instr)
 			exception("Illegal instruction\n", EX_ILLINSTR, 0);
 			return;
 	}
-	
-	//printf("\n%d:Exit:%s\n",getInteger(reg[IP_REG]),instruction);
 }

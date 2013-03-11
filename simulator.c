@@ -5,33 +5,66 @@
    note : -g for debug mode -d for disabling timer interrupt
 */
 main(int argc,char **argv){
-	int intDisable=0;
+	int intDisable=0,flag_intValue;
 	db_mode=0;
 	if(argc >= 2)
 	{
-		if(strcmp(argv[1],"--debug") == 0 || strcmp(argv[1],"-g") == 0)
+		if(strcmp(argv[1],"--debug") == 0 || strcmp(argv[1],"-d") == 0)
 			db_mode = 1;
-		else if(strcmp(argv[1], "--disable-timer") == 0 || strcmp(argv[1], "-d") == 0)
-			intDisable = 1;
 		else
 		{
-			printf("Invalid arguement %s", argv[1]);
-			exit(0);
+			char *flag_name = strtok(argv[1], "=");	
+			char *flag_value = strtok(NULL, "=");
+			if(strcmp(flag_name, "--timer") == 0 || strcmp(flag_name, "-t") == 0)
+			{
+				flag_intValue=getInteger(flag_value);
+				if(flag_intValue >= 1 && flag_intValue <= 1024)
+					TIMESLICE = flag_intValue;
+				else if(flag_intValue == 0)
+					intDisable = 1;
+				else
+				{
+					printf("Invalid arguement %d to timer flag. Timer value should be between 0 and 1024\n", flag_intValue);
+					exit(0);
+				}
+			}
+			else
+			{
+				printf("Invalid arguement %s", argv[1]);
+				exit(0);
+			}
 		}
 	}
 	if(argc == 3)
 	{
-		if(strcmp(argv[2],"--debug") == 0 || strcmp(argv[2],"-g") == 0)
+		if(strcmp(argv[2],"--debug") == 0 || strcmp(argv[2],"-d") == 0)
 			db_mode = 1;
-		else if(strcmp(argv[2], "--disable-timer") == 0 || strcmp(argv[2], "-id") == 0)
-			intDisable = 1;
 		else
 		{
-			printf("Invalid arguement %s", argv[2]);
-			exit(0);
+			char *flag_name = strtok(argv[2], "=");	
+			char *flag_value = strtok(NULL, "=");
+			if(strcmp(flag_name, "--timer") == 0 || strcmp(flag_name, "-t") == 0)
+			{
+				flag_intValue=getInteger(flag_value);
+				if(flag_intValue >= 1 && flag_intValue <= 1024)
+					TIMESLICE = flag_intValue;
+				else if(flag_intValue == 0)
+					intDisable = 1;
+				else
+				{
+					printf("Invalid arguement %d to timer flag. Timer value should be between 0 and 1024\n", flag_intValue);
+					exit(0);
+				}
+			}
+			else
+			{
+				printf("Invalid arguement %s", argv[2]);
+				exit(0);
+			}
 		}
 	}
 	initializeRegs();  
+	time_counter = TIMESLICE;
 	run(db_mode, intDisable);	
 }
 
@@ -49,6 +82,8 @@ main(int argc,char **argv){
 void run(int db_mode, int intDisable) {
 	loadStartupCode();
 	int instr,len;
+	printRegisters();
+	return;
 	unsigned long long int tempCount=0;
 	while(1) {
 		struct address translatedAddr;

@@ -3,9 +3,10 @@
 
 #include <stdio.h>
 
-#define TIMESLICE 10
+#define DEFAULT_TIMESLICE 10
 
-int time_counter = TIMESLICE;
+int TIMESLICE = DEFAULT_TIMESLICE;
+int time_counter;
 
 int is_time_zero() {
 	return (time_counter == 0);

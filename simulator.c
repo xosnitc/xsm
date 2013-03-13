@@ -82,8 +82,6 @@ main(int argc,char **argv){
 void run(int db_mode, int intDisable) {
 	loadStartupCode();
 	int instr,len;
-	printRegisters();
-	return;
 	unsigned long long int tempCount=0;
 	while(1) {
 		struct address translatedAddr;

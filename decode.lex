@@ -18,7 +18,7 @@
 
 %%
 
-START\n	{ return(START);}
+START	{ return(START);}
 MOV		{ yylval.flag=0; yylval.flag2=0; return(MOV); }
 ADD		{ yylval.flag=ADD; yylval.flag2=0; return(ARITH); }
 SUB		{ yylval.flag=SUB; yylval.flag2=0; return(ARITH); }
@@ -47,8 +47,8 @@ STORE		{ yylval.flag=0; yylval.flag2=0; return(STORE); }
 HALT		{ yylval.flag=0; yylval.flag2=0; return(HALT); }
 INT		{ yylval.flag=0; yylval.flag2=0; return(INT); }
 END		{ yylval.flag=0; yylval.flag2=0; return(END); }
-BRKP\n		{ yylval.flag=0; yylval.flag2=0; return(BRKP); }
-IRET\n 		{ yylval.flag=0; yylval.flag2=0; return(IRET);}
+BRKP		{ yylval.flag=0; yylval.flag2=0; return(BRKP); }
+IRET 		{ yylval.flag=0; yylval.flag2=0; return(IRET);}
 SP 		{ yylval.flag=SP; yylval.flag2=0; return(0); }
 BP		{ yylval.flag=BP; yylval.flag2=0; return(0); }
 IP		{ yylval.flag=IP; yylval.flag2=0; return(0); }

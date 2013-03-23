@@ -85,8 +85,10 @@ void printRegisters() {
 				printf("EFR: %s\t",reg[EFR_REG]);
 				break;		
 			default: 
-				if(i<T0)
+				if(i<S0)
 					printf("R%d: %s\t",i,reg[i]);
+				else if(i<T0)
+					printf("S%d: %s\t",i-S0,reg[i]);
 				else
 					printf("T%d: %s\t",i-T0,reg[i]);
 				break;

@@ -11,6 +11,7 @@
 		result = len;			\
 	}
 	char tempbuf[16];
+	int tempnum;
 	void get_lexdata(char buf1[],char buf2[]);
 %}
 
@@ -55,8 +56,30 @@ IP		{ yylval.flag=IP; yylval.flag2=0; return(0); }
 PTBR		{ yylval.flag=PTBR; yylval.flag2=0; return(0); }
 PTLR		{ yylval.flag=PTLR; yylval.flag2=0; return(0); }
 EFR		{ yylval.flag=EFR; yylval.flag2=0; return(0); } 	
-R[0-9]+ 	{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext));	}
-T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0); }
+R[0-9]+ { 
+			yylval.flag=REG; yylval.flag2=0;
+			yytext++;
+			tempnum = atoi(yytext);
+			if(tempnum > 7)
+				return ILLREG;
+			return(tempnum + R0);
+		}
+S[0-9]+ { 
+			yylval.flag=REG; yylval.flag2=0;
+			yytext++;
+			tempnum = atoi(yytext);
+			if(tempnum > 15)
+				return ILLREG;
+			return(tempnum + S0);
+		}
+T[0-9]+	{ 
+			yylval.flag=REG; yylval.flag2=0;
+			yytext++;
+			tempnum = atoi(yytext);
+			if(tempnum > 3)
+				return ILLREG;
+			return(tempnum + T0);
+		}
 \[SP\]		{ yylval.flag=MEM_SP; yylval.flag2=0; return(0); }
 \[BP\]		{ yylval.flag=MEM_BP; yylval.flag2=0; return(0); }
 \[IP\]		{ yylval.flag=MEM_IP; yylval.flag2=0; return(0); }		//error: Is this needed.
@@ -67,13 +90,28 @@ T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0);
 			yylval.flag=MEM_REG; yylval.flag2=0; 
 			yytext[yyleng-1]='\0';
 			yytext=yytext+2;
-			return(atoi(yytext)); 
-		}	
+			tempnum = atoi(yytext);
+			if(tempnum > 7)
+				return ILLREG;
+			return(tempnum + R0); 
+		}
+\[S[0-9]+\]  	{
+			yylval.flag=MEM_REG; yylval.flag2=0; 
+			yytext[yyleng-1]='\0';
+			yytext=yytext+2;
+			tempnum = atoi(yytext);
+			if(tempnum > 15)
+				return ILLREG;
+			return(tempnum + S0); 
+		}
 \[T[0-9]+\]  	{
 			yylval.flag=MEM_REG; yylval.flag2=0; 
 			yytext[yyleng-1]='\0';
 			yytext=yytext+2;
-			return(atoi(yytext) + T0); 
+			tempnum = atoi(yytext);
+			if(tempnum > 3)
+				return ILLREG;
+			return(tempnum + T0); 
 		}
 -?[0-9]+  		{ yylval.flag=NUM; yylval.flag2=0; return(atoi(yytext)); }
 \[[0-9]+\]		{
@@ -86,14 +124,33 @@ T[0-9]+		{ yylval.flag=REG; yylval.flag2=0; yytext++; return(atoi(yytext) + T0);
 				yylval.flag=MEM_DIR_REG;
 				yytext++;
 				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
-				yylval.flag2=atoi(tempbuf);
+				tempnum = atoi(tempbuf);
+				if(tempnum > 7)
+					yylval.flag2 = ILLREG;
+				else
+					yylval.flag2= tempnum + R0;
+				return(atoi(yytext));					
+			}
+\[-?[0-9]+\]S[0-9]+	{
+				yylval.flag=MEM_DIR_REG;
+				yytext++;
+				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				tempnum = atoi(tempbuf);
+				if(tempnum > 15)
+					yylval.flag2 = ILLREG;
+				else
+					yylval.flag2= tempnum + S0;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]T[0-9]+	{
 				yylval.flag=MEM_DIR_REG;
 				yytext++;
 				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
-				yylval.flag2=atoi(tempbuf) + T0;
+				tempnum = atoi(tempbuf);
+				if(tempnum > 3)
+					yylval.flag2 = ILLREG;
+				else
+					yylval.flag2= tempnum + T0;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]SP		{
@@ -175,7 +232,7 @@ void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***
 			flag = 1;
 			j=0;
 			buf1[i]='\0';
-			if(buf1[i+1] == 'R' || buf1[i+1] == 'T')
+			if(buf1[i+1] == 'R' || buf1[i+1] == 'S' || buf1[i+1] == 'T')
 			{
 				i++;
 				buf1[i]='\0';

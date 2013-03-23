@@ -66,4 +66,4 @@
 #define MEM_DIR_EFR		62
 #define MEM_DIR_IN		63
 
-
+#define ILLREG			64

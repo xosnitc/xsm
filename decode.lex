@@ -12,7 +12,7 @@
 	}
 	char tempbuf[16];
 	int tempnum;
-	void get_lexdata(char buf1[],char buf2[]);
+	void decode_indexed_addr(char location[],char index[]);
 %}
 
 %option noyywrap
@@ -123,7 +123,7 @@ T[0-9]+	{
 \[-?[0-9]+\]R[0-9]+	{
 				yylval.flag=MEM_DIR_REG;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				tempnum = atoi(tempbuf);
 				if(tempnum > 7)
 					yylval.flag2 = ILLREG;
@@ -134,7 +134,7 @@ T[0-9]+	{
 \[-?[0-9]+\]S[0-9]+	{
 				yylval.flag=MEM_DIR_REG;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				tempnum = atoi(tempbuf);
 				if(tempnum > 15)
 					yylval.flag2 = ILLREG;
@@ -145,7 +145,7 @@ T[0-9]+	{
 \[-?[0-9]+\]T[0-9]+	{
 				yylval.flag=MEM_DIR_REG;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				tempnum = atoi(tempbuf);
 				if(tempnum > 3)
 					yylval.flag2 = ILLREG;
@@ -156,49 +156,49 @@ T[0-9]+	{
 \[-?[0-9]+\]SP		{
 				yylval.flag=MEM_DIR_SP;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=SP_REG;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]BP		{
 				yylval.flag=MEM_DIR_BP;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=BP_REG;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]IP		{
 				yylval.flag=MEM_DIR_IP;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=IP_REG;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]PTBR	{
 				yylval.flag=MEM_DIR_PTBR;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=PTBR_REG;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]PTLR	{
 				yylval.flag=MEM_DIR_PTLR;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=PTLR_REG;
 				return(atoi(yytext));					
 			}
 \[-?[0-9]+\]EFR		{
 				yylval.flag=MEM_DIR_EFR;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=EFR_REG;
 				return(atoi(yytext));					
 			}					
 \[-?[0-9]+\]-?[0-9]+	{
 				yylval.flag=MEM_DIR_IN;
 				yytext++;
-				get_lexdata(yytext,tempbuf);	//Not at all tested. Vulnerable ***
+				decode_indexed_addr(yytext,tempbuf);	//Not at all tested. Vulnerable ***
 				yylval.flag2=atoi(tempbuf);
 				return(atoi(yytext));					
 			}
@@ -222,24 +222,28 @@ T[0-9]+	{
 [,:]			;
 .			{return(ILLTOKEN);}
 %%
-void get_lexdata(char buf1[],char buf2[]) 			//Not at all tested. Vulnerable ***
+
+/*
+ Splits the token of the form "[location]index" to location and index
+ */
+void decode_indexed_addr(char location[],char index[]) 			//Not at all tested. Vulnerable ***
 {
 	int i,flag,j;
-	for(i=0,j=0,flag=0;buf1[i]!='\0';i++,j++)
+	for(i=0,j=0,flag=0;location[i]!='\0';i++,j++)
 	{
-		if(buf1[i] == ']')
+		if(location[i] == ']')
 		{
 			flag = 1;
 			j=0;
-			buf1[i]='\0';
-			if(buf1[i+1] == 'R' || buf1[i+1] == 'S' || buf1[i+1] == 'T')
+			location[i]='\0';
+			if(location[i+1] == 'R' || location[i+1] == 'S' || location[i+1] == 'T')
 			{
 				i++;
-				buf1[i]='\0';
+				location[i]='\0';
 			}			
 		}
 		if(flag == 1)
-			buf2[j] = buf1[i];
+			index[j] = location[i];
 	}
-	buf2[j]='\0';	
+	index[j]='\0';	
 }

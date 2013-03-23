@@ -1025,7 +1025,8 @@ void Executeoneinstr(int instr)
 			if(oper!= INR && oper!=DCR)
 			{
 				opnd2 = yylex();
-				switch(yylval.flag)
+				flag2 = yylval.flag;
+				switch(flag2)
 				{
 					case REG:
 						if(mode == USER_MODE && opnd2 >= NO_USER_REG)
@@ -1120,6 +1121,9 @@ void Executeoneinstr(int instr)
 						else
 							result2 = EFR_REG;
 						break;
+					case NUM:
+						result2 = opnd2;
+						break;
 					default:
 						exception("Illegal operand", EX_ILLOPERAND, 0);
 						return;					
@@ -1128,24 +1132,62 @@ void Executeoneinstr(int instr)
 			switch(oper)
 			{
 				case ADD:
-					storeInteger(reg[result],getInteger(reg[result]) + getInteger(reg[result2]));
+					if(flag2 == NUM)
+						storeInteger(reg[result],getInteger(reg[result]) + result2);
+					else
+						storeInteger(reg[result],getInteger(reg[result]) + getInteger(reg[result2]));
 					break;			
 				case SUB:
-					storeInteger(reg[result],getInteger(reg[result]) - getInteger(reg[result2]));
+					if(flag2 == NUM)
+						storeInteger(reg[result],getInteger(reg[result]) - result2);
+					else
+						storeInteger(reg[result],getInteger(reg[result]) - getInteger(reg[result2]));
 					break;
 				case MUL:
-					storeInteger(reg[result],getInteger(reg[result]) * getInteger(reg[result2]));
+					if(flag2 == NUM)
+						storeInteger(reg[result],getInteger(reg[result]) * result2);
+					else
+						storeInteger(reg[result],getInteger(reg[result]) * getInteger(reg[result2]));
 					break;
 				case DIV: 
-					if(getInteger(reg[result2]) == 0)
+					if(flag2 == NUM)
 					{
-						exception("Divide by ZERO", EX_ILLOPERAND, 0);
-						return;
+						if(result2 == 0)
+						{
+							exception("Divide by ZERO", EX_ILLOPERAND, 0);
+							return;
+						}
+						storeInteger(reg[result],getInteger(reg[result]) / result2);
 					}
-					storeInteger(reg[result],getInteger(reg[result]) / getInteger(reg[result2]));
+					else
+					{
+						if(getInteger(reg[result2]) == 0)
+						{
+							exception("Divide by ZERO", EX_ILLOPERAND, 0);
+							return;
+						}
+						storeInteger(reg[result],getInteger(reg[result]) / getInteger(reg[result2]));
+					}
 					break;
 				case MOD:
-					storeInteger(reg[result],getInteger(reg[result]) % getInteger(reg[result2]));
+					if(flag2 == NUM)
+					{
+						if(result2 == 0)
+						{
+							exception("Divide by ZERO", EX_ILLOPERAND, 0);
+							return;
+						}
+						storeInteger(reg[result],getInteger(reg[result]) % result2);
+					}
+					else
+					{
+						if(getInteger(reg[result2]) == 0)
+						{
+							exception("Divide by ZERO", EX_ILLOPERAND, 0);
+							return;
+						}
+						storeInteger(reg[result],getInteger(reg[result]) % getInteger(reg[result2]));
+					}
 					break;
 				case INR:
 					storeInteger(reg[result],getInteger(reg[result]) + 1);

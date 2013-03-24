@@ -6,6 +6,7 @@
 #include "scheduler.h"
 #include "utility.h"
 #include "interrupt.h"
+#include "debug.h"
 
 void Executeoneinstr(int);
 void Operanderror(char*,int);

@@ -63,7 +63,7 @@ int getType(char* str)
 }
 
 void exception(char str[50], int ex_status, int fault_pageno) {
-	if(mode == KERNEL_MODE || db_mode)
+	if(mode == KERNEL_MODE)
 	{
 		printf("<ERROR:%d:%s> %s\n",getInteger(reg[IP_REG]),instruction, str);
 		exit(0);

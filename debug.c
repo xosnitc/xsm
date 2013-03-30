@@ -8,25 +8,25 @@ Function to invoke Command Line interface
 */
 void debug_interface()	
 {
-  char command[100], c;
-  int i,j;
-		
-  printf("Unix-XFS Interace Version 1.0. \nType \"help\" for  getting a list of commands.");
-  while(1)
-  {
-  	i=0;
-  	printf("\n# ");
-  	scanf("%c",&c);
-  	while(c!='\n')
-  	{  	
-		command[i++] = c;
+	char command[100], c;
+	int i,j;
+	printf("Last Instruction Executed : %s\n", instruction);
+	printf("Mode : %s \t Current IP Value: %s\n", (mode == USER_MODE)?"USER":"KERNEL" ,reg[IP_REG]);
+	while(1)
+	{
+		i=0;
+		printf("\n# ");
 		scanf("%c",&c);
-  	}
-  	command[i] = '\0';
-	if(command[0]!='\0')
-		if(runCommand(command) == 1)
-			return;
-  }
+		while(c!='\n')
+		{  	
+			command[i++] = c;
+			scanf("%c",&c);
+		}
+		command[i] = '\0';
+		if(command[0]!='\0')
+			if(runCommand(command) == 1)
+				return;
+	}
 }
 
 /* 
@@ -37,7 +37,7 @@ int runCommand(char command[])
 	char *name = strtok(command, " ");
 	char *arg1, *arg2, *arg3;
 	int arg1value, arg2value;	
-	if(strcmp(name,"help")==0)		//"help" to display all commands
+	if(strcmp(name,"help")==0 || strcmp(name,"h")==0)		//"help" to display all commands
 	{
 		printf("\n step / s\n\t Single step the exection\n\n");	
 		printf(" continue / c\n\t Continue to next breakpoint \n\n");
@@ -46,8 +46,12 @@ int runCommand(char command[])
 		printf(" reg / r <register_name1> <register_name2>  \n\t Prints the value of all registers from <register_name1> to <register_name2> \n\n");
 		printf(" mem / m <page_num>  \n\t Displays contents of a memory page \n\n");
 		printf(" mem / m <page_num1> <page_num2>  \n\t Displays contents of memory pages from <page_num1> to <page_num2>\n\n");
-		printf(" exit \n\t Exit the interface and Halt the machine\n");
-		printf("help\n");
+		printf(" pcb / p \n \t Displays the PCB with state as running \n\n");
+		printf(" pcb / p <pid> \n\t Displays the <pid> th PCB \n\n");
+		printf(" pagetable / pt \n \t Displays the page table at location pointed by PTBR \n\n");
+		printf(" pagetable / pt <pid> \n\t Displays the <pid> th page table \n\n");
+		printf(" exit / e \n\t Exit the interface and Halt the machine\n");
+		printf(" help / h\n");
 	}	
 	else if (strcmp(name,"step") == 0 || strcmp(name,"s") == 0)	//Single Stepping
 	{
@@ -131,6 +135,62 @@ int runCommand(char command[])
 				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 		}	
 	}						
+	else if (strcmp(name,"p")==0 || strcmp(name,"pcb")==0)	//displays PCB of a process
+	{
+		arg1 = strtok(NULL, " ");
+		if(arg1 == NULL)  //finds the PCB with state as running
+		{
+			int page_no, word_no;
+			arg1value = 0;
+			while(arg1value < 32)
+			{
+				page_no = (1536 + arg1value * 32 + 1) / PAGE_SIZE;
+				word_no = (1536 + arg1value * 32 + 1) % PAGE_SIZE;
+				if(getInteger(page[page_no].word[word_no]) == 2)
+					break;
+				arg1value++;
+			}
+			if(arg1value == 32)
+			{
+				printf("No PCB found with state as running");
+				return 0;
+			}
+		}
+		else
+		{
+			arg1value = atoi(arg1);
+			if(arg1value<0 || arg1value >=32)
+			{
+				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
+				return 0;
+			}
+		}
+		printPCB(arg1value);
+	}
+	else if (strcmp(name,"pagetable")==0 || strcmp(name,"pt")==0)	//displays Page Table of a process
+	{
+		arg1 = strtok(NULL, " ");
+		if(arg1 == NULL)  //finds the page table using PTBR
+		{
+			int page_no, word_no;
+			arg1value = getInteger(reg[PTBR_REG]);
+			if(arg1value < 1024 || arg1value > 1272)
+			{
+				printf("Illegal PTBR value");
+				return 0;
+			}
+		}
+		else
+		{
+			arg1value = 1024 + atoi(arg1) * 8;
+			if(arg1value < 1024 || arg1value > 1272)
+			{
+				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
+				return 0;
+			}
+		}
+		printPageTable(arg1value);
+	}
 	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);
 	else
@@ -233,3 +293,56 @@ void printMemory(int page_no)
 		printf("%d: %s \t\t", word_no, page[page_no].word[word_no]);
 	printf("\n\n");
 }
+
+/*
+ * This fuction prints the PCB of process with given process ID.
+ */
+void printPCB(int pid)
+{
+	int page_no, word_no, counter;
+	page_no = (1536 + pid * 32) / PAGE_SIZE;
+	word_no = (1536 + pid * 32) % PAGE_SIZE;
+	printf("PID\t: %s\nSTATE\t: %s\n", page[page_no].word[word_no], page[page_no].word[word_no+1]);
+	printf("BP\t: %s\n", page[page_no].word[word_no+2]);
+	printf("SP\t: %s\n", page[page_no].word[word_no+3]);
+	printf("IP\t: %s\n", page[page_no].word[word_no+4]);
+	printf("PTBR\t: %s\n", page[page_no].word[word_no+5]);
+	printf("PTLR\t: %s\n", page[page_no].word[word_no+6]);
+	counter=0;
+	while(counter < 8)
+	{
+		printf("R%d\t: %s\n", counter, page[page_no].word[word_no+7+counter]);
+		counter++;
+	}
+	printf("Per-Process Open File Table\n");
+	counter = 0;
+	while(counter < 8)
+	{
+		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+15+ counter*2], page[page_no].word[word_no+16+ counter*2]);
+		counter++;
+	}
+}
+
+/*
+ * This fuction prints the page table of process with given process ID.
+ */
+void printPageTable(int ptbr)
+{
+	int page_no, word_no, counter;
+	page_no = ptbr / PAGE_SIZE;
+	word_no = ptbr % PAGE_SIZE;
+	printf("Page Table\n");
+	counter = 0;
+	while(counter < 4)
+	{
+		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+ counter*2], page[page_no].word[word_no + counter*2 +1]);
+		counter++;
+	}
+}
+
+/* 
+ * This function prints the system wide open file table
+ */
+ void printFileTable()
+ {
+ }

@@ -36,4 +36,19 @@ void printRegisters(int);
  */
 void printMemory(int);
 
+/*
+ * This fuction prints the PCB of process with given process ID.
+ */
+void printPCB(int);
+
+/*
+ * This fuction prints the page table of process with given process ID.
+ */
+void printPageTable(int);
+
+/* 
+ * This function prints the system wide open file table
+ */
+ void printFileTable();
+
 #endif

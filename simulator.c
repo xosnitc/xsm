@@ -127,14 +127,12 @@ void run(int db_mode, int intDisable) {
 			tick();
 		Executeoneinstr(instr);
 		if(step_flag == ENABLE)
-		{
-			printf("XSM Debug Environment\n Last Instruction Executed :%s\n", instruction);
-			printf("Mode : %s \t Current IP Value: %s\n", (mode == USER_MODE)?"USER":"KERNEL" ,reg[IP_REG]);			
 			debug_interface();
-		}
 		if(is_time_zero() && !intDisable && mode==USER_MODE) {
 			reset_timer();
 			runInt0Code();
+			if(step_flag == ENABLE)
+				printf("TIMER Interrupt\n");
 		}
 	}
 }
@@ -2201,7 +2199,10 @@ void Executeoneinstr(int instr)
 		
 		case BRKP:
 			if(db_mode == ENABLE)
+			{
 				step_flag = ENABLE;
+				printf("\nXSM Debug Environment\nType \"help\" for  getting a list of commands\n");
+			}
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		default:

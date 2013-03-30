@@ -50,6 +50,7 @@ int runCommand(char command[])
 		printf(" pcb / p <pid> \n\t Displays the <pid> th PCB \n\n");
 		printf(" pagetable / pt \n \t Displays the page table at location pointed by PTBR \n\n");
 		printf(" pagetable / pt <pid> \n\t Displays the <pid> th page table \n\n");
+		printf(" filetable / ft \n \t Displays the System Wide Open File Table\n\n");
 		printf(" exit / e \n\t Exit the interface and Halt the machine\n");
 		printf(" help / h\n");
 	}	
@@ -68,14 +69,14 @@ int runCommand(char command[])
 		arg1 = strtok(NULL, " ");
 		arg2 = strtok(NULL, " ");	
 		if(arg1 == NULL)
-			printRegisters(-1);
+			printRegisters(R0, NUM_REGS-1);
 		else if(arg2 == NULL)
 		{
 			arg1value = getRegArg(arg1);
 			if(arg1value == -1)
 				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 			else
-				printRegisters(arg1value);
+				printRegisters(arg1value,arg1value);
 		}
 		else
 		{
@@ -91,12 +92,8 @@ int runCommand(char command[])
 					arg2value = arg1value - arg2value;
 					arg1value = arg1value - arg2value;
 				}
-				while(arg1value <= arg2value)
-				{
-					printRegisters(arg1value);
-					arg1value++;
-				}
-			}				
+				printRegisters(arg1value,arg2value);
+			}
 		}
 	}	
 	else if (strcmp(name,"mem")==0 || strcmp(name,"m")==0)	//displays pages in memory
@@ -135,7 +132,7 @@ int runCommand(char command[])
 				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 		}	
 	}						
-	else if (strcmp(name,"p")==0 || strcmp(name,"pcb")==0)	//displays PCB of a process
+	else if (strcmp(name,"pcb")==0 || strcmp(name,"p")==0)	//displays PCB of a process
 	{
 		arg1 = strtok(NULL, " ");
 		if(arg1 == NULL)  //finds the PCB with state as running
@@ -191,6 +188,10 @@ int runCommand(char command[])
 		}
 		printPageTable(arg1value);
 	}
+	else if (strcmp(name,"filetable")==0 || strcmp(name,"ft")==0)	//displays System Wide Open File Table
+		printFileTable();
+	else if (strcmp(name,"memfreelist")==0 || strcmp(name,"mf")==0)	//displays System Wide Open File Table
+		printMemFreeList();
 	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);
 	else
@@ -242,14 +243,13 @@ int getRegArg(char *arg)
 /* Prints all the registers if arg is -1, 
  * otherwise prints the register passed as argument
  */
-void printRegisters(int flag)
+void printRegisters(int arg1, int arg2)
 {
-	int i=0;
-	if(flag != -1)
-		i=flag;
-	do
+	int i=1;
+	while(arg1 <= arg2)
 	{
-		switch(i) {
+		switch(arg1) 
+		{
 			case BP_REG: 
 				printf("BP: %s\t",reg[BP_REG]);
 				break;
@@ -269,16 +269,19 @@ void printRegisters(int flag)
 				printf("EFR: %s\t",reg[EFR_REG]);
 				break;		
 			default: 
-				if(i<S0)
-					printf("R%d: %s\t",i,reg[i]);
-				else if(i<T0)
-					printf("S%d: %s\t",i-S0,reg[i]);
+				if(arg1<S0)
+					printf("R%d: %s\t",arg1,reg[arg1]);
+				else if(arg1<T0)
+					printf("S%d: %s\t",arg1-S0,reg[arg1]);
 				else
-					printf("T%d: %s\t",i-T0,reg[i]);
+					printf("T%d: %s\t",arg1-T0,reg[arg1]);
 				break;
 		}
+		if(i % 4 == 0)
+			printf("\n");
+		arg1++;
 		i++;
-	}while(i<NUM_REGS && flag == -1);
+	}
 	printf("\n");
 }
 
@@ -288,9 +291,13 @@ void printRegisters(int flag)
 void printMemory(int page_no)
 {
 	int word_no;
-	printf("Page No : %d\n",page_no);
+	printf("Page No : %d",page_no);
 	for(word_no = 0; word_no < PAGE_SIZE; word_no++)
+	{
+		if(word_no % 4 == 0)
+			printf("\n");
 		printf("%d: %s \t\t", word_no, page[page_no].word[word_no]);
+	}
 	printf("\n\n");
 }
 
@@ -345,4 +352,33 @@ void printPageTable(int ptbr)
  */
  void printFileTable()
  {
+	int page_no, word_no, counter;
+	page_no = 1344 / PAGE_SIZE;
+	word_no = 1344 % PAGE_SIZE;
+	printf("System Wide Open File Table\n");
+	counter = 0;
+	while(counter < 64)
+	{
+		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+ counter*2], page[page_no].word[word_no + counter*2 +1]);
+		counter++;
+	}
+ }
+ 
+ /* 
+ * This function prints the memory free list
+ */
+ void printMemFreeList()
+ {
+	int page_no, word_no, counter;
+	page_no = 1280 / PAGE_SIZE;
+	word_no = 1280 % PAGE_SIZE;
+	printf("Memory Free List");
+	counter = 0;
+	while(counter < 64)
+	{
+		if(counter % 4 == 0)
+			printf("\n");
+		printf("%d: %s \t\t", counter, page[page_no].word[word_no + counter]);
+	}
+	printf("\n\n");
  }

@@ -26,10 +26,9 @@ int runCommand(char command[]);
 int getRegArg(char *);
 
 /*
- * This fuction prints all the registers if arg is -1
- * Otherwise print the corresponding register
+ * This fuction prints all the registers from arg1 to arg2
  */
-void printRegisters(int);
+void printRegisters(int, int);
 
 /*
  * This fuction prints the memory page passed as argument.
@@ -50,5 +49,10 @@ void printPageTable(int);
  * This function prints the system wide open file table
  */
  void printFileTable();
+ 
+ /* 
+ * This function prints the memory free list
+ */
+ void printMemFreeList();
 
 #endif

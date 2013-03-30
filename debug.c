@@ -1,4 +1,7 @@
 #include "debug.h"
+#include "data.h"
+#include "memory_constants.h"
+#include "interrupt.h"
 
 /* 
 Function to invoke Command Line interface 
@@ -33,6 +36,7 @@ int runCommand(char command[])
 {
 	char *name = strtok(command, " ");
 	char *arg1, *arg2, *arg3;
+	int arg1value, arg2value;
 	
 	
 	if(strcmp(name,"help")==0)		//"help" to display all commands
@@ -66,16 +70,47 @@ int runCommand(char command[])
 		step_flag = ENABLE;
 		return 1;		
 	}
-	else if (strcmp(name,"continue") == 0 || strcmp(name,"c") == 0)	//Coontinue till next breakpoint
+	else if (strcmp(name,"continue") == 0 || strcmp(name,"c") == 0)	//Continue till next breakpoint
 	{
 		step_flag = DISABLE;
 		return 1;		
 	}	
-	else if (strcmp(name,"load")==0) 	//loads files to XFS disk.
+	else if (strcmp(name,"reg")==0) 	//Prints the registers.
 	{
 		arg1 = strtok(NULL, " ");
 		arg2 = strtok(NULL, " ");	
-
+		if(arg1 == NULL)
+			printRegisters(-1);
+		else if(arg2 == NULL)
+		{
+			arg1value = getRegArg(arg1);
+			if(arg1value == -1)
+				printf("Illegal argument for reg. See \"help\" for more information");
+			else
+				printRegisters(arg1value);
+		}
+		else
+		{
+			arg1value = getRegArg(arg1);
+			arg2value = getRegArg(arg2);
+			if(arg1value == -1 || arg2value == -1)
+				printf("Illegal argument for reg. See \"help\" for more information");
+			else
+			{
+				if(arg1value > arg2value) 	//swap them
+				{
+					arg1value = arg1value + arg2value;
+					arg2value = arg1value - arg2value;
+					arg1value = arg1value - arg2value;
+				}
+				while(arg1value <= arg2value)
+				{
+					printRegisters(arg1value);
+					arg1value++;
+				}
+			}				
+		}
+		return 0;
 		/*char *int_command = strtok(arg1, "=");	
 		char *intType = strtok(NULL, "=");
 	    	char *fileName = arg2;;
@@ -104,22 +139,20 @@ int runCommand(char command[])
 		else
 			printf("Invalid argument \"%s\" for load. See \"help\" for more information",arg1);*/
 	}	
-	else if (strcmp(name,"copy")==0)		//Copies blocks from Disk to UNIX file.
+	else if (strcmp(name,"mem")==0)		//displays pages in memory
 	{
 		arg1 = strtok(NULL, " ");
 		arg2 = strtok(NULL, " ");
-		arg3 = strtok(NULL, " ");
-		if(arg1==NULL || arg2==NULL|| arg3==NULL)
+		if(arg1 == NULL)
+			printf("Insufficient argument for \"mem\". See \"help\" for more information");	
+		else if(arg2 == NULL)
 		{
-			printf("Insufficient arguments for \"copy\". See \"help\" for more information");
-			return;
-		}	
+			printf("mem");
+		}
 		else
 		{
-			int startBlock = atoi(arg1);
-			int endBlock = atoi(arg2);	
-			char *fileName = arg3;			
-			fileName[50] = '\0';
+			int startPage = atoi(arg1);
+			int endPage = atoi(arg2);
 			//copyBlocksToFile (startBlock,endBlock,fileName);
 		}	
 	}						
@@ -130,9 +163,57 @@ int runCommand(char command[])
 	return 0;
 }
 
-void printRegisters() {
+/*
+ * Function to get register number from argument
+ */
+int getRegArg(char *arg)
+{
+	int argvalue;
+	if(strcmp(arg,"BP") == 0 || strcmp(arg,"bp") == 0)
+		return(BP_REG);
+	else if(strcmp(arg,"IP") == 0 || strcmp(arg,"ip") == 0)
+		return(IP_REG);
+	else if(strcmp(arg,"SP") == 0 || strcmp(arg,"sp") == 0)
+		return(SP_REG);
+	else if(strcmp(arg,"PTBR") == 0 || strcmp(arg,"ptbr") == 0)
+		return(PTBR_REG);
+	else if(strcmp(arg,"PTLR") == 0 || strcmp(arg,"ptlr") == 0)
+		return(PTLR_REG);
+	else if(strcmp(arg,"EFR") == 0 || strcmp(arg,"efr") == 0)
+		return(EFR_REG);
+	else
+		argvalue = atoi(arg + 1);
+	switch(arg[0])
+	{
+		case 'R':
+		case 'r':
+			if(argvalue >= 0 && argvalue < NO_USER_REG);
+				return(R0 + argvalue);
+			break;
+		case 'S':
+		case 's':
+			if(argvalue >= 0 && argvalue < NO_SYS_REG);
+				return(S0 + argvalue);
+			break;
+		case 'T':
+		case 't':
+			if(argvalue >= 0 && argvalue < NO_TEMP_REG);
+				return(T0 + argvalue);
+			break;
+	}
+	return -1;
+}
+
+/* Prints all the registers if arg is -1, 
+ * otherwise prints the register passed as argument
+ */
+void printRegisters(int flag)
+{
 	int i=0;
-	for(i=0;i<NUM_REGS;i++) {
+	if(flag != -1)
+		i=flag;
+	do
+	{
 		switch(i) {
 			case BP_REG: 
 				printf("BP: %s\t",reg[BP_REG]);
@@ -161,6 +242,7 @@ void printRegisters() {
 					printf("T%d: %s\t",i-T0,reg[i]);
 				break;
 		}
-	}
+		i++;
+	}while(i<NUM_REGS && flag == -1);
 	printf("\n");
 }

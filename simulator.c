@@ -7,6 +7,7 @@
 main(int argc,char **argv){
 	int intDisable=0,flag_intValue;
 	db_mode = DISABLE;
+	step_flag = DISABLE;
 	if(argc >= 2)
 	{
 		if(strcmp(argv[1],"--debug") == 0 || strcmp(argv[1],"-d") == 0)
@@ -128,8 +129,7 @@ void run(int db_mode, int intDisable) {
 		if(step_flag == ENABLE)
 		{
 			printf("XSM Debug Environment\n Last Instruction Executed :%s\n", instruction);
-			printf("Mode : %s \t Current IP Value: %s\n", (mode == USER_MODE)?"USER":"KERNEL" ,reg[IP_REG]);
-			
+			printf("Mode : %s \t Current IP Value: %s\n", (mode == USER_MODE)?"USER":"KERNEL" ,reg[IP_REG]);			
 			debug_interface();
 		}
 		if(is_time_zero() && !intDisable && mode==USER_MODE) {

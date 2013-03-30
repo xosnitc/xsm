@@ -51,6 +51,9 @@ int runCommand(char command[])
 		printf(" pagetable / pt \n \t Displays the page table at location pointed by PTBR \n\n");
 		printf(" pagetable / pt <pid> \n\t Displays the <pid> th page table \n\n");
 		printf(" filetable / ft \n \t Displays the System Wide Open File Table\n\n");
+		printf(" memfreelist / mf \n \t Displays the Memory Free List\n\n");
+		printf(" diskfreelist / df \n \t Displays the Memory copy of Disk Free List\n\n");
+		printf(" fat \n \t Displays the Memory Copy of File Allocation Table\n\n");
 		printf(" exit / e \n\t Exit the interface and Halt the machine\n");
 		printf(" help / h\n");
 	}	
@@ -190,8 +193,12 @@ int runCommand(char command[])
 	}
 	else if (strcmp(name,"filetable")==0 || strcmp(name,"ft")==0)	//displays System Wide Open File Table
 		printFileTable();
-	else if (strcmp(name,"memfreelist")==0 || strcmp(name,"mf")==0)	//displays System Wide Open File Table
+	else if (strcmp(name,"memfreelist")==0 || strcmp(name,"mf")==0)	//displays Memory Free Lisk
 		printMemFreeList();
+	else if (strcmp(name,"diskfreelist")==0 || strcmp(name,"df")==0)	//displays Disk Free List
+		printDiskFreeList();
+	else if (strcmp(name,"fat")==0)	//displays File Allocation Table
+		printFAT();
 	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);
 	else
@@ -307,8 +314,8 @@ void printMemory(int page_no)
 void printPCB(int pid)
 {
 	int page_no, word_no, counter;
-	page_no = (1536 + pid * 32) / PAGE_SIZE;
-	word_no = (1536 + pid * 32) % PAGE_SIZE;
+	page_no = (READY_LIST + pid * PCB_ENTRY) / PAGE_SIZE;
+	word_no = (READY_LIST + pid * PCB_ENTRY) % PAGE_SIZE;
 	printf("PID\t: %s\nSTATE\t: %s\n", page[page_no].word[word_no], page[page_no].word[word_no+1]);
 	printf("BP\t: %s\n", page[page_no].word[word_no+2]);
 	printf("SP\t: %s\n", page[page_no].word[word_no+3]);
@@ -316,16 +323,16 @@ void printPCB(int pid)
 	printf("PTBR\t: %s\n", page[page_no].word[word_no+5]);
 	printf("PTLR\t: %s\n", page[page_no].word[word_no+6]);
 	counter=0;
-	while(counter < 8)
+	while(counter < NO_USER_REG)
 	{
 		printf("R%d\t: %s\n", counter, page[page_no].word[word_no+7+counter]);
 		counter++;
 	}
 	printf("Per-Process Open File Table\n");
 	counter = 0;
-	while(counter < 8)
+	while(counter < NUM_PERFILE_TABLE)
 	{
-		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+15+ counter*2], page[page_no].word[word_no+16+ counter*2]);
+		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+15+ counter*PERFILE_TABLE_ENTRY], page[page_no].word[word_no+16+ counter*PERFILE_TABLE_ENTRY]);
 		counter++;
 	}
 }
@@ -340,9 +347,9 @@ void printPageTable(int ptbr)
 	word_no = ptbr % PAGE_SIZE;
 	printf("Page Table\n");
 	counter = 0;
-	while(counter < 4)
+	while(counter < NUM_PAGE_TABLE)
 	{
-		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+ counter*2], page[page_no].word[word_no + counter*2 +1]);
+		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+ counter*PAGE_TABLE_ENTRY], page[page_no].word[word_no + counter*PAGE_TABLE_ENTRY +1]);
 		counter++;
 	}
 }
@@ -353,13 +360,13 @@ void printPageTable(int ptbr)
  void printFileTable()
  {
 	int page_no, word_no, counter;
-	page_no = 1344 / PAGE_SIZE;
-	word_no = 1344 % PAGE_SIZE;
+	page_no = FILE_TABLE / PAGE_SIZE;
+	word_no = FILE_TABLE % PAGE_SIZE;
 	printf("System Wide Open File Table\n");
 	counter = 0;
-	while(counter < 64)
+	while(counter < NUM_FILE_TABLE)
 	{
-		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+ counter*2], page[page_no].word[word_no + counter*2 +1]);
+		printf("%d: %s\t%s\n", counter, page[page_no].word[word_no+ counter*FILE_TABLE_ENTRY], page[page_no].word[word_no + counter*FILE_TABLE_ENTRY +1]);
 		counter++;
 	}
  }
@@ -370,15 +377,51 @@ void printPageTable(int ptbr)
  void printMemFreeList()
  {
 	int page_no, word_no, counter;
-	page_no = 1280 / PAGE_SIZE;
-	word_no = 1280 % PAGE_SIZE;
+	page_no = MEM_LIST / PAGE_SIZE;
+	word_no = MEM_LIST % PAGE_SIZE;
 	printf("Memory Free List");
 	counter = 0;
-	while(counter < 64)
+	while(counter < NUM_PAGES)
 	{
 		if(counter % 4 == 0)
 			printf("\n");
-		printf("%d: %s \t\t", counter, page[page_no].word[word_no + counter]);
+		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
 	}
 	printf("\n\n");
+ }
+
+/* 
+ * This function prints the disk free list
+ */
+ void printDiskFreeList()
+ {
+	int page_no, word_no, counter;
+	page_no = DISK_LIST / PAGE_SIZE;
+	word_no = DISK_LIST % PAGE_SIZE;
+	printf("Disk Free List");
+	counter = 0;
+	while(counter < NUM_BLOCKS)
+	{
+		if(counter % 4 == 0)
+			printf("\n");
+		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
+	}
+	printf("\n\n");
+ }
+
+/* 
+ * This function prints the File Allocation table
+ */
+ void printFAT()
+ {
+	int page_no, word_no, counter;
+	page_no = FAT / PAGE_SIZE;
+	word_no = FAT % PAGE_SIZE;
+	printf("System Wide Open File Table\n");
+	counter = 0;
+	while(counter < NUM_FAT)
+	{
+		printf("%d: %s\t%s\t%s\n", counter, page[page_no].word[word_no+ counter*FAT_ENTRY], page[page_no].word[word_no + counter*FAT_ENTRY +1], page[page_no].word[word_no + counter*FAT_ENTRY +2]);
+		counter++;
+	}
  }

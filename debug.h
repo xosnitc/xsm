@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "xosconstants.h"
 
 #define DISABLE 0
 #define ENABLE 1
+
 
 int db_mode; 		// flag to check whether machine is run in debug mode or not
 int step_flag;		// flag to check whether debugging in single step mode
@@ -54,5 +56,15 @@ void printPageTable(int);
  * This function prints the memory free list
  */
  void printMemFreeList();
+
+/* 
+ * This function prints the disk free list
+ */
+ void printDiskFreeList();
+ 
+ /* 
+ * This function prints the File Allocation table
+ */
+ void printFAT();
 
 #endif

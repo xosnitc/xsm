@@ -36,35 +36,19 @@ int runCommand(char command[])
 {
 	char *name = strtok(command, " ");
 	char *arg1, *arg2, *arg3;
-	int arg1value, arg2value;
-	
-	
+	int arg1value, arg2value;	
 	if(strcmp(name,"help")==0)		//"help" to display all commands
 	{
-		/*printf("\n fdisk \n\t Format the disk with XFS filesystem\n\n");	
-		printf(" load --exec  <pathname>  \n\t Loads an executable file to XFS disk \n\n");
-		printf(" load --init  <pathname> \n\t Loads INIT code to XFS disk \n\n");
-		printf(" load --data <pathname> \n\t Loads a data file to XFS disk \n\n");
-		printf(" load --os  <pathname> \n\t Loads OS startup code to XFS disk \n\n");
-		printf(" load --int=timer <pathname>\n\t Loads Timer Interrupt routine to XFS disk \n\n");		
-		printf(" load --int=[1-7] <pathname>\n\t Loads the specified Interrupt routine to XFS disk \n\n");
-		printf(" load --exhandler <pathname>  \n\t Loads exception handler routine to XFS disk \n\n");
-		printf(" rm --exec <xfs_filename>\n\t Removes an executable file from XFS disk \n\n");
-		printf(" rm --init <xfs_filename> \n\t Removes INIT code from XFS disk \n\n");	
-		printf(" rm --data <xfs_filename>\n\t Removes a data file from XFS disk \n\n");
-		printf(" rm --os \n\t Removes OS startup code from XFS disk \n\n");
-		printf(" rm --int=timer \n\t Removes the Timer Interrupt routine from XFS disk \n\n");	
-		printf(" rm --int=[1-7] \n\t Removes the specified Interrupt routine from XFS disk \n\n");
-		printf(" rm --exhandler\n\t Removes the exception handler routine from XFS disk \n\n");
-		printf(" ls \n\t List all files\n\n");	
-		printf(" df \n\t Display free list and free space\n\n");
-		printf(" cat <xfs_filename> \n\t to display contents of a file\n\n");
-		printf(" copy <start_blocks> <end_block> <unix_filename>\n\t Copies contents of specified range of blocks to a UNIX file.\n\n");	
-		printf(" exit \n\t Exit the interface\n");*/
+		printf("\n step / s\n\t Single step the exection\n\n");	
+		printf(" continue / c\n\t Continue to next breakpoint \n\n");
+		printf(" reg / r \n\t Prints the value of all registers \n\n");
+		printf(" reg / r <register_name>  \n\t Prints the value of a particular register \n\n");
+		printf(" reg / r <register_name1> <register_name2>  \n\t Prints the value of all registers from <register_name1> to <register_name2> \n\n");
+		printf(" mem / m <page_num>  \n\t Displays contents of a memory page \n\n");
+		printf(" mem / m <page_num1> <page_num2>  \n\t Displays contents of memory pages from <page_num1> to <page_num2>\n\n");
+		printf(" exit \n\t Exit the interface and Halt the machine\n");
 		printf("help\n");
-	}
-	
-	
+	}	
 	else if (strcmp(name,"step") == 0 || strcmp(name,"s") == 0)	//Single Stepping
 	{
 		step_flag = ENABLE;
@@ -75,7 +59,7 @@ int runCommand(char command[])
 		step_flag = DISABLE;
 		return 1;		
 	}	
-	else if (strcmp(name,"reg")==0) 	//Prints the registers.
+	else if (strcmp(name,"reg")==0 || strcmp(name,"r")==0) 	//Prints the registers.
 	{
 		arg1 = strtok(NULL, " ");
 		arg2 = strtok(NULL, " ");	
@@ -85,7 +69,7 @@ int runCommand(char command[])
 		{
 			arg1value = getRegArg(arg1);
 			if(arg1value == -1)
-				printf("Illegal argument for reg. See \"help\" for more information");
+				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 			else
 				printRegisters(arg1value);
 		}
@@ -94,7 +78,7 @@ int runCommand(char command[])
 			arg1value = getRegArg(arg1);
 			arg2value = getRegArg(arg2);
 			if(arg1value == -1 || arg2value == -1)
-				printf("Illegal argument for reg. See \"help\" for more information");
+				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 			else
 			{
 				if(arg1value > arg2value) 	//swap them
@@ -110,53 +94,44 @@ int runCommand(char command[])
 				}
 			}				
 		}
-		return 0;
-		/*char *int_command = strtok(arg1, "=");	
-		char *intType = strtok(NULL, "=");
-	    	char *fileName = arg2;;
-	    
-		if(fileName!=NULL)
-			fileName[50] = '\0';
-		else
-		{
-			printf("Missing <pathname> for load. See \"help\" for more information");
-			return;
-		}				
-		if (strcmp(arg1,"--exec")==0)		
-			
-		else if (strcmp(arg1,"--init")==0)	
-			
-		else if (strcmp(arg1,"--data")==0) 
-		{
-		}
-		else if (strcmp(arg1,"--os")==0)
-		
-		else if (strcmp(arg1,"--int")==0)
-		{
-		}
-		else if (strcmp(arg1,"--exhandler")==0) 
-		
-		else
-			printf("Invalid argument \"%s\" for load. See \"help\" for more information",arg1);*/
 	}	
-	else if (strcmp(name,"mem")==0)		//displays pages in memory
+	else if (strcmp(name,"mem")==0 || strcmp(name,"m")==0)	//displays pages in memory
 	{
 		arg1 = strtok(NULL, " ");
 		arg2 = strtok(NULL, " ");
 		if(arg1 == NULL)
-			printf("Insufficient argument for \"mem\". See \"help\" for more information");	
+			printf("Insufficient argument for \"%s\". See \"help\" for more information",name);
 		else if(arg2 == NULL)
 		{
-			printf("mem");
+			arg1value = atoi(arg1);
+			if(arg1value >0 && arg1value < NUM_PAGES)
+				printMemory(arg1value);
+			else
+				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 		}
 		else
 		{
-			int startPage = atoi(arg1);
-			int endPage = atoi(arg2);
-			//copyBlocksToFile (startBlock,endBlock,fileName);
+			arg1value = atoi(arg1);
+			arg2value = atoi(arg2);
+			if(arg1value > arg2value) 	//swap them
+			{
+				arg1value = arg1value + arg2value;
+				arg2value = arg1value - arg2value;
+				arg1value = arg1value - arg2value;
+			}
+			if(arg1value >0 && arg2value < NUM_PAGES)
+			{
+				while(arg1value <= arg2value)
+				{
+					printMemory(arg1value);
+					arg1value++;
+				}
+			}
+			else
+				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 		}	
 	}						
-	else if (strcmp(name,"exit")==0)		//Exits the interface
+	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);
 	else
 		printf("Unknown command \"%s\". See \"help\" for more information",name);
@@ -171,10 +146,10 @@ int getRegArg(char *arg)
 	int argvalue;
 	if(strcmp(arg,"BP") == 0 || strcmp(arg,"bp") == 0)
 		return(BP_REG);
-	else if(strcmp(arg,"IP") == 0 || strcmp(arg,"ip") == 0)
-		return(IP_REG);
 	else if(strcmp(arg,"SP") == 0 || strcmp(arg,"sp") == 0)
 		return(SP_REG);
+	else if(strcmp(arg,"IP") == 0 || strcmp(arg,"ip") == 0)
+		return(IP_REG);
 	else if(strcmp(arg,"PTBR") == 0 || strcmp(arg,"ptbr") == 0)
 		return(PTBR_REG);
 	else if(strcmp(arg,"PTLR") == 0 || strcmp(arg,"ptlr") == 0)
@@ -245,4 +220,16 @@ void printRegisters(int flag)
 		i++;
 	}while(i<NUM_REGS && flag == -1);
 	printf("\n");
+}
+
+/*
+ * This fuction prints the memory page passed as argument.
+ */
+void printMemory(int page_no)
+{
+	int word_no;
+	printf("Page No : %d\n",page_no);
+	for(word_no = 0; word_no < PAGE_SIZE; word_no++)
+		printf("%d: %s \t\t", word_no, page[page_no].word[word_no]);
+	printf("\n\n");
 }

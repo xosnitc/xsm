@@ -8,9 +8,18 @@
 #define DISABLE 0
 #define ENABLE 1
 
+#define COMMAND_LENGTH 50
+
 
 int db_mode; 		// flag to check whether machine is run in debug mode or not
 int step_flag;		// flag to check whether debugging in single step mode
+
+char command[COMMAND_LENGTH],prev_command[COMMAND_LENGTH]; //buffer to store command and previous command.
+
+/*
+ * This function initializes all debug flags and buffers
+ */
+ void initialize_debug();
 
 /*
   This function invokes a command line interface for debugging.
@@ -19,6 +28,9 @@ void debug_interface();
 
 /*
  * function processes each command the user enters
+ * returns 1 if step or continue
+ * returns 0 on success
+ * returns -1 on error
  */
 int runCommand(char command[]);
 

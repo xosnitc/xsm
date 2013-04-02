@@ -389,6 +389,7 @@ void printPageTable(int ptbr)
 		if(counter % 4 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
+		counter++;
 	}
 	printf("\n\n");
  }
@@ -408,6 +409,7 @@ void printPageTable(int ptbr)
 		if(counter % 4 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
+		counter++;
 	}
 	printf("\n\n");
  }

@@ -8,6 +8,7 @@
 void loadStartupCode()
 {
   mode = KERNEL_MODE;
+  emptyPage(OS_STARTUP_CODE_PAGENO);
   readFromDisk(OS_STARTUP_CODE_PAGENO, BOOT_BLOCK);
   storeInteger(reg[IP_REG], OS_STARTUP_CODE_PAGENO * PAGE_SIZE);
 }
@@ -18,6 +19,6 @@ void loadStartupCode()
 */
 void initializeRegs() {
 	int i;
-	for(i=0; i<NUM_REGS; i++) //NOTE:modified here
+	for(i=0; i<NUM_REGS; i++)
 		storeInteger(reg[i],0);
 }

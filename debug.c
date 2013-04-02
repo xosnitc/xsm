@@ -9,9 +9,12 @@ Function to invoke Command Line interface
 void debug_interface()	
 {
 	char command[100], c;
+	char next_instr[WORD_SIZE * WORDS_PERINSTR];
 	int i,j;
 	printf("Last Instruction Executed : %s\n", instruction);
 	printf("Mode : %s \t Current IP Value: %s\n", (mode == USER_MODE)?"USER":"KERNEL" ,reg[IP_REG]);
+	if(getInstruction(next_instr) == 0)		//gets the next instruction to be executed
+		printf("Next Instruction to be Executed : %s\n", next_instr);
 	while(1)
 	{
 		i=0;

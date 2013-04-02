@@ -77,58 +77,26 @@ main(int argc,char **argv){
     2. Copies the instruction to be parsed as per the address specified by the IP register.
     3. Checks whether interrupt is disabled. If not th clock ticks.
     4. Begins the lexical analysis by getting the first token and passing it as arguement to Executeoneinstr.
-    5. Finally checks if time slice allocated is over or not. If yes and mode is user mode ,and if interrupt is enabled then
+    5. If step flag is enabled enters debug mode
+    6. Finally checks if time slice allocated is over or not. If yes and mode is user mode ,and if interrupt is enabled then
       INT 0 code is run.
 */
 void run(int db_mode, int intDisable) {
 	loadStartupCode();
-	int instr,len;
-	unsigned long long int tempCount=0;
-	while(1) {
-		struct address translatedAddr;
-		bzero(instruction,WORD_SIZE * WORDS_PERINSTR);
+	int instr;
+	while(1)
+	{
 		YY_FLUSH_BUFFER;
-		if(getType(reg[IP_REG]) == TYPE_STR)
-		{	
-		    exception("Illegal IP value. Not an address", EX_ILLMEM, 0);
-		    continue;
-		}
-		if(mode == USER_MODE && getType(reg[PTLR_REG]) == TYPE_STR)
-		{	
-		    exception("Illegal PTLR value", EX_ILLMEM, 0);
-		    continue;
-		}
-		if(getInteger(reg[IP_REG])<0 || getInteger(reg[IP_REG]) + 1 >=SIZE_OF_MEM){			//checks if address is outside limits
-		    exception("IP Register value out of bounds", EX_ILLMEM, 0);
-		    continue;
-		}
-		if(mode == USER_MODE){						//checks if address is outside limits if mode is user mode
-			if(getInteger(reg[IP_REG]) < 0 || getInteger(reg[IP_REG]) + 1 >= getInteger(reg[PTLR_REG]) * PAGE_SIZE) {
-				printf("%d", getInteger(reg[IP_REG]));
-				exception("Illegal IP access1", EX_ILLOPERAND, 0);
-				continue;
-			}
-		}
-		translatedAddr = translate(getInteger(reg[IP_REG]));
-		if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-			return;
-		strcpy(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
-		translatedAddr = translate(getInteger(reg[IP_REG])+1);
-		if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
-			return;
-		len = strlen(instruction);
-		instruction[len]=' ';
-		instruction[len+1]='\0';
-		strcat(instruction,page[translatedAddr.page_no].word[translatedAddr.word_no]);
-		translatedAddr.word_no = -1;
-		translatedAddr.page_no = -1;
+		if(getInstruction(instruction) == -1)		//gets the next instruction in variable instruction
+			continue;		
 		instr = yylex();
 		if(mode == USER_MODE && !intDisable) 
 			tick();
 		Executeoneinstr(instr);
 		if(step_flag == ENABLE)
 			debug_interface();
-		if(is_time_zero() && !intDisable && mode==USER_MODE) {
+		if(is_time_zero() && !intDisable && mode==USER_MODE)
+		{
 			reset_timer();
 			runInt0Code();
 			if(step_flag == ENABLE)
@@ -2178,8 +2146,11 @@ void Executeoneinstr(int instr)
 					return;
 					break;
 			}
-			if(instr == LOAD)			
+			if(instr == LOAD)
+			{			
+				emptyPage(result);
 				readFromDisk(result, result2);
+			}
 			else if(instr == STORE)
 				writeToDisk(result2, result);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);

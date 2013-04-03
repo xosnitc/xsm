@@ -1416,7 +1416,8 @@ void Executeoneinstr(int instr)
 						exception("Illegal address access", EX_ILLMEM, 0);
 						return;
 					}					
-					if(getType(reg[result]) == TYPE_INT && ((oper==JZ && getInteger(reg[result]) == 0) ||(oper==JNZ && getInteger(reg[result]) != 0)))
+					if( (getType(reg[result]) == TYPE_INT && oper==JZ && getInteger(reg[result]) == 0) 
+					|| (getType(reg[result]) == TYPE_STR || (oper==JNZ && getInteger(reg[result]) != 0)) )
 					{						
 						storeInteger(reg[IP_REG], opnd2);
 						

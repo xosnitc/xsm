@@ -432,7 +432,7 @@ void printPageTable(int ptbr)
 	counter = 0;
 	while(counter < NUM_PAGES)
 	{
-		if(counter % 4 == 0)
+		if(counter % 3 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
 		counter++;
@@ -452,7 +452,7 @@ void printPageTable(int ptbr)
 	counter = 0;
 	while(counter < NUM_BLOCKS)
 	{
-		if(counter % 4 == 0)
+		if(counter % 3 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
 		counter++;

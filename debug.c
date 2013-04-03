@@ -45,14 +45,11 @@ void debug_interface()
 			if(val == 1)
 				return;				
 		}
-		else 		// enter is pressed without any command
-		{
-			if(prev_command[0]!='\0')	//there is a valid previous command in buffer
-			{
-				val = runCommand(prev_command);		//execute the prevoius command
-				if(val == 1)
-					return;
-			}
+		else if(prev_command[0]!='\0')		// enter is pressed without any command and there is a valid previous command in buffer
+		{			
+			val = runCommand(prev_command);		//execute the prevoius command
+			if(val == 1)
+				return;			
 		}
 	}
 }
@@ -67,7 +64,7 @@ int runCommand(char command[])
 {
 	char *name = strtok(command, " ");
 	char *arg1, *arg2, *arg3;
-	int arg1value, arg2value;	
+	int arg1value, arg2value;
 	if(strcmp(name,"help")==0 || strcmp(name,"h")==0)		//"help" to display all commands
 	{
 		printf("\n step / s\n\t Single step the exection\n\n");	
@@ -85,6 +82,7 @@ int runCommand(char command[])
 		printf(" memfreelist / mf \n \t Displays the Memory Free List\n\n");
 		printf(" diskfreelist / df \n \t Displays the Memory copy of Disk Free List\n\n");
 		printf(" fat \n \t Displays the Memory Copy of File Allocation Table\n\n");
+		printf(" word / w <register/address> \n \t Displays the Memory Copy of File Allocation Table\n\n");
 		printf(" exit / e \n\t Exit the interface and Halt the machine\n");
 		printf(" help / h\n");
 	}	
@@ -244,6 +242,8 @@ int runCommand(char command[])
 	else if (strcmp(name,"diskfreelist")==0 || strcmp(name,"df")==0)	//displays Disk Free List
 		printDiskFreeList();
 	else if (strcmp(name,"fat")==0)	//displays File Allocation Table
+		printFAT();
+	else if (strcmp(name,"word")==0 || strcmp(name,"w")==0 )	//displays a word
 		printFAT();
 	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);

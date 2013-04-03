@@ -1754,7 +1754,7 @@ void Executeoneinstr(int instr)
 				return;
 			storeInteger(reg[SP_REG], getInteger(reg[SP_REG]) + 1);
 			storeInteger(page[translatedAddr.page_no].word[translatedAddr.word_no],getInteger(reg[IP_REG]) + WORDS_PERINSTR);
-			storeInteger(reg[IP_REG], (opnd1 + INT_START_PAGE) * PAGE_SIZE);
+			storeInteger(reg[IP_REG], ( (opnd1*PAGE_PER_INT) + INT_START_PAGE) * PAGE_SIZE);
 			mode = KERNEL_MODE;
 			break;
 		

@@ -62,7 +62,7 @@ struct address translate (int virtual_addr) {
 		resultant_addr.word_no = -1;
 		if(getType(reg[PTBR_REG]) == TYPE_STR)
 		{	
-		    exception("Illegal Register value", EX_ILLMEM, 0);
+			exception("Illegal Register value", EX_ILLMEM, 0);
 			return resultant_addr;
 		}
 		page_entry = getInteger(reg[PTBR_REG]) + (virtual_addr / PAGE_SIZE) * 2;
@@ -73,8 +73,7 @@ struct address translate (int virtual_addr) {
 			page[(page_entry+1) / PAGE_SIZE].word[(page_entry+1) % PAGE_SIZE][0] = REFERENCED;
 		}
 		else
-			exception("Page Fault", EX_PAGEFAULT, virtual_addr / PAGE_SIZE);			
-// 		printf("pg %d - wd %d \n", resultant_addr.page_no, resultant_addr.word_no); note: debugging
+			exception("Page Fault", EX_PAGEFAULT, virtual_addr / PAGE_SIZE);
 		return resultant_addr;
 	}
 	else
@@ -82,7 +81,6 @@ struct address translate (int virtual_addr) {
 		struct address resultant_addr;
 		resultant_addr.page_no = virtual_addr / PAGE_SIZE;
 		resultant_addr.word_no = virtual_addr % PAGE_SIZE;
-// 		printf("pg %d - wd %d \n", resultant_addr.page_no, resultant_addr.word_no); note:debugging
 		return resultant_addr;
 	}
 }

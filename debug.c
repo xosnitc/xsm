@@ -1,7 +1,5 @@
 #include "debug.h"
 #include "data.h"
-#include "memory_constants.h"
-#include "interrupt.h"
 
 /*
  * This function initializes all debug flags and buffers
@@ -186,15 +184,15 @@ int runCommand(char command[])
 		{
 			int page_no, word_no;
 			arg1value = 0;
-			while(arg1value < 32)
+			while(arg1value < NUM_PCB)
 			{
-				page_no = (1536 + arg1value * 32 + 1) / PAGE_SIZE;
-				word_no = (1536 + arg1value * 32 + 1) % PAGE_SIZE;
-				if(getInteger(page[page_no].word[word_no]) == 2)
+				page_no = (READY_LIST + arg1value * PCB_ENTRY + 1) / PAGE_SIZE;
+				word_no = (READY_LIST + arg1value * PCB_ENTRY + 1) % PAGE_SIZE;
+				if(getInteger(page[page_no].word[word_no]) == STATE_RUNNING)
 					break;
 				arg1value++;
 			}
-			if(arg1value == 32)
+			if(arg1value == NUM_PCB)
 			{
 				printf("No PCB found with state as running");
 				return -1;
@@ -203,7 +201,7 @@ int runCommand(char command[])
 		else
 		{
 			arg1value = atoi(arg1);
-			if(arg1value<0 || arg1value >=32)
+			if(arg1value<0 || arg1value >=NUM_PCB)
 			{
 				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 				return -1;
@@ -218,20 +216,20 @@ int runCommand(char command[])
 		{
 			int page_no, word_no;
 			arg1value = getInteger(reg[PTBR_REG]);
-			if(arg1value < 1024 || arg1value > 1272)
+			if(arg1value < PAGE_TABLE || arg1value > (PAGE_TABLE + ((NUM_PCB-1)*NUM_PAGE_TABLE*PAGE_TABLE_ENTRY)) )
 			{
 				printf("Illegal PTBR value");
 				return -1;
 			}
 		}
 		else
-		{
-			arg1value = 1024 + atoi(arg1) * 8;
-			if(arg1value < 1024 || arg1value > 1272)
+		{			
+			if(atoi(arg1) < 0 || atoi(arg1) >= NUM_PCB )
 			{
 				printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 				return -1;
 			}
+			arg1value = PAGE_TABLE + atoi(arg1) * (PAGE_TABLE_ENTRY * NUM_PAGE_TABLE);
 		}
 		printPageTable(arg1value);
 	}
@@ -350,7 +348,7 @@ void printMemory(int page_no)
 	printf("Page No : %d",page_no);
 	for(word_no = 0; word_no < PAGE_SIZE; word_no++)
 	{
-		if(word_no % 4 == 0)
+		if(word_no % 3 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", word_no, page[page_no].word[word_no]);
 	}
@@ -432,7 +430,7 @@ void printPageTable(int ptbr)
 	counter = 0;
 	while(counter < NUM_PAGES)
 	{
-		if(counter % 3 == 0)
+		if(counter % 4 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
 		counter++;
@@ -452,7 +450,7 @@ void printPageTable(int ptbr)
 	counter = 0;
 	while(counter < NUM_BLOCKS)
 	{
-		if(counter % 3 == 0)
+		if(counter % 4 == 0)
 			printf("\n");
 		printf("%d: %s \t\t", counter, (getInteger(page[page_no].word[word_no + counter])==0)?"FREE":"USED" );
 		counter++;

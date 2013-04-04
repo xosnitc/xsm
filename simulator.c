@@ -1787,15 +1787,20 @@ void Executeoneinstr(int instr)
 			mode = USER_MODE;			
 			translatedAddr = translate(getInteger(reg[SP_REG]));
 			if(translatedAddr.page_no == -1 && translatedAddr.word_no == -1)
+			{
+				mode = KERNEL_MODE;
 				return;
+			}
 			else if(getType(page[translatedAddr.page_no].word[translatedAddr.word_no]) == TYPE_STR)
 			{
+				mode = KERNEL_MODE;
 				exception("Illegal return address", EX_ILLMEM, 0);
 				return;
 			}
 			result = getInteger(page[translatedAddr.page_no].word[translatedAddr.word_no]);
 			if(result < 0 || getType(reg[PTLR_REG]) == TYPE_STR || result >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
 			{
+				mode = KERNEL_MODE;
 				exception("Illegal return address", EX_ILLMEM, 0);
 				return;
 			}

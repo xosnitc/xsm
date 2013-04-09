@@ -37,9 +37,8 @@ void debug_interface()
 		command[i] = '\0';
 		if(command[0]!='\0')
 		{
+			strcpy(prev_command,command);	// backup this command
 			val = runCommand(command);
-			if(val != -1)		// The command is a valid command
-				strcpy(prev_command,command);	// backup this command
 			if(val == 1)
 				return;				
 		}

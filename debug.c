@@ -44,6 +44,7 @@ void debug_interface()
 			if(val == 1)
 				return;	
 		}
+	}
 }
 
 /*

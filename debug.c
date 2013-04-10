@@ -36,15 +36,14 @@ void debug_interface()
 		}
 		command[i] = '\0';
 		if(command[0] == '\0')
-			strcpy(command,prev_command);
+			strcpy(command,prev_command);		
 		if(command[0]!='\0')
 		{
 			strcpy(prev_command,command);	// backup this command
 			val = runCommand(command);
 			if(val == 1)
-				return;				
+				return;	
 		}
-	}
 }
 
 /*

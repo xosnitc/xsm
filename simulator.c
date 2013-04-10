@@ -17,7 +17,9 @@ main(int argc,char **argv){
 			char *flag_value = strtok(NULL, "=");
 			if(strcmp(flag_name, "--timer") == 0 || strcmp(flag_name, "-t") == 0)
 			{
-				flag_intValue=getInteger(flag_value);
+				flag_intValue = -1;
+				if(flag_value != NULL)
+					flag_intValue=getInteger(flag_value);
 				if(flag_intValue >= 1 && flag_intValue <= 1024)
 					TIMESLICE = flag_intValue;
 				else if(flag_intValue == 0)
@@ -45,7 +47,9 @@ main(int argc,char **argv){
 			char *flag_value = strtok(NULL, "=");
 			if(strcmp(flag_name, "--timer") == 0 || strcmp(flag_name, "-t") == 0)
 			{
-				flag_intValue=getInteger(flag_value);
+				flag_intValue = -1;
+				if(flag_value != NULL)
+					flag_intValue=getInteger(flag_value);
 				if(flag_intValue >= 1 && flag_intValue <= 1024)
 					TIMESLICE = flag_intValue;
 				else if(flag_intValue == 0)

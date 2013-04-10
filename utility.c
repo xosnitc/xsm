@@ -108,6 +108,8 @@ void exception(char str[50], int ex_status, int fault_pageno) {
 	if(mode == KERNEL_MODE)
 	{
 		printf("<ERROR:%d:%s> %s\n",getInteger(reg[IP_REG]),instruction, str);
+		if(db_mode == ENABLE)
+			debug_interface();
 		exit(0);
 	}
 	else

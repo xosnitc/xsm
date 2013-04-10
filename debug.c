@@ -35,18 +35,14 @@ void debug_interface()
 			scanf("%c",&c);
 		}
 		command[i] = '\0';
+		if(command[0] == '\0')
+			strcpy(command,prev_command);
 		if(command[0]!='\0')
 		{
 			strcpy(prev_command,command);	// backup this command
 			val = runCommand(command);
 			if(val == 1)
 				return;				
-		}
-		else if(prev_command[0]!='\0')		// enter is pressed without any command and there is a valid previous command in buffer
-		{			
-			val = runCommand(prev_command);		//execute the prevoius command
-			if(val == 1)
-				return;			
 		}
 	}
 }

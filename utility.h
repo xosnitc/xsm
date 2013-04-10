@@ -3,6 +3,7 @@
 #include "data.h"
 #include "memory_constants.h"
 #include "interrupt.h"
+#include "debug.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1865,10 +1865,12 @@ void Executeoneinstr(int instr)
 					return;					
 			}
 			char input[WORD_SIZE];
+			FLUSH_STDIN(input);    // strip newline, flush extra chars
 			scanf("%s",input);
 			input[WORD_SIZE-1] = '\0';
 			strcpy(reg[result], input);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
+			FLUSH_STDIN(input);    // strip newline, flush extra chars
 			break;
 		
 		case OUT:
@@ -1936,6 +1938,7 @@ void Executeoneinstr(int instr)
 					return;					
 			}
 			printf("%s\n",reg[result]);
+			fflush(stdout);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
 			break;
 		case LOAD:

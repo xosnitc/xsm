@@ -8,6 +8,7 @@ void initialize_debug()
 {
 	db_mode = DISABLE;
 	step_flag = DISABLE;
+	watch_flag = DISABLE;
 	bzero(command,COMMAND_LENGTH);
 	bzero( prev_command, COMMAND_LENGTH);
 }
@@ -58,6 +59,7 @@ int runCommand(char command[])
 	char *name = strtok(command, " ");
 	char *arg1, *arg2, *arg3;
 	int arg1value, arg2value;
+	struct address translatedAddr;
 	if(strcmp(name,"help")==0 || strcmp(name,"h")==0)		//"help" to display all commands
 	{
 		printf("\n step / s\n\t Single step the exection\n\n");	
@@ -75,7 +77,7 @@ int runCommand(char command[])
 		printf(" memfreelist / mf \n \t Displays the Memory Free List\n\n");
 		printf(" diskfreelist / df \n \t Displays the Memory copy of Disk Free List\n\n");
 		printf(" fat \n \t Displays the Memory Copy of File Allocation Table\n\n");
-		printf(" word / w <register/address> \n \t Displays the Memory Copy of File Allocation Table\n\n");
+		printf(" location / l <address> \n \t Displays the content at memory address (Translation takes place in USER mode)\n\n");
 		printf(" exit / e \n\t Exit the interface and Halt the machine\n");
 		printf(" help / h\n");
 	}	
@@ -236,8 +238,22 @@ int runCommand(char command[])
 		printDiskFreeList();
 	else if (strcmp(name,"fat")==0)	//displays File Allocation Table
 		printFAT();
-	else if (strcmp(name,"word")==0 || strcmp(name,"w")==0 )	//displays a word
-		printFAT();
+	else if (strcmp(name,"location")==0 || strcmp(name,"l")==0 )	//displays a content of a memory location
+	{
+		arg1 = strtok(NULL, " ");
+		if(arg1 == NULL) 
+		{
+			printf("Insufficient argument for \"%s\". See \"help\" for more information",name);
+			return -1;
+		}
+		translatedAddr = translate_debug(atoi(arg1));
+		if(getType(arg1) == TYPE_STR || (translatedAddr.page_no == -1 && translatedAddr.word_no == -1) )
+		{
+			printf("Illegal argument for \"%s\". See \"help\" for more information",name);
+			return -1;
+		}
+		printLocation(translatedAddr);
+	}
 	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);
 	else
@@ -468,4 +484,46 @@ void printPageTable(int ptbr)
 		printf("%d: %s\t%s\t%s\n", counter, page[page_no].word[word_no+ counter*FAT_ENTRY], page[page_no].word[word_no + counter*FAT_ENTRY +1], page[page_no].word[word_no + counter*FAT_ENTRY +2]);
 		counter++;
 	}
+ }
+ 
+/* 
+ * This function translates an address without
+ * invoking execution on errors.
+ * returns page_no and word_no as -1 on failure
+ */ 
+ struct address translate_debug (int virtual_addr) {
+	struct address resultant_addr;
+	resultant_addr.page_no = -1;
+	resultant_addr.word_no = -1;
+	if(mode == USER_MODE)
+	{		
+		int page_entry;
+		if(getType(reg[PTBR_REG]) == TYPE_STR || getType(reg[PTLR_REG]) == TYPE_STR || virtual_addr < 0
+		 || virtual_addr >= getInteger(reg[PTLR_REG]) * PAGE_SIZE)
+			return resultant_addr;							
+		page_entry = getInteger(reg[PTBR_REG]) + (virtual_addr / PAGE_SIZE) * 2;
+		if(page[(page_entry+1) / PAGE_SIZE].word[(page_entry+1) % PAGE_SIZE][1] == VALID )
+		{ 
+			resultant_addr.page_no = getInteger(page[page_entry / PAGE_SIZE].word[page_entry % PAGE_SIZE] );
+			resultant_addr.word_no = virtual_addr % PAGE_SIZE;
+			page[(page_entry+1) / PAGE_SIZE].word[(page_entry+1) % PAGE_SIZE][0] = REFERENCED;
+		}
+		return resultant_addr;
+	}
+	else
+	{		
+		if( virtual_addr < 0 || virtual_addr >= SIZE_OF_MEM )
+			return resultant_addr;
+		resultant_addr.page_no = virtual_addr / PAGE_SIZE;
+		resultant_addr.word_no = virtual_addr % PAGE_SIZE;
+		return resultant_addr;
+	}
+}
+ 
+/* 
+ * This function prints the memory location
+ */
+ void printLocation(struct address translatedAddr)
+ {
+	printf("%s\n", page[translatedAddr.page_no].word[translatedAddr.word_no]);
  }

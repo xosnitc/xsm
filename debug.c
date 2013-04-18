@@ -561,8 +561,9 @@ int checkWatch()
 		return DISABLE;
 	else
 	{
-		printf("The value at location %d changed\n", watch_addr.page_no * PAGE_SIZE + watch_addr.word_no);
-		printf("Previous value : %s\n" , watch_value);
+		printf("\nXSM Debug Environment\n");
+		printf("The Value at Location %d Changed\n", watch_addr.page_no * PAGE_SIZE + watch_addr.word_no);
+		printf("Previous value : %s\t\t" , watch_value);
 		printf("New value : %s\n" , page[watch_addr.page_no].word[watch_addr.word_no]);
 		strcpy(watch_value, page[watch_addr.page_no].word[watch_addr.word_no]);
 		return ENABLE;

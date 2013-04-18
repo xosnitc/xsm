@@ -96,7 +96,7 @@ void run(int db_mode, int intDisable) {
 		if(mode == USER_MODE && !intDisable) 
 			tick();
 		Executeoneinstr(instr);
-		if(step_flag == ENABLE)
+		if( (watch_flag == ENABLE && checkWatch() == ENABLE) || step_flag == ENABLE)
 			debug_interface();
 		if(is_time_zero() && !intDisable && mode==USER_MODE)
 		{
@@ -1865,12 +1865,11 @@ void Executeoneinstr(int instr)
 					return;					
 			}
 			char input[WORD_SIZE];
-			FLUSH_STDIN(input);    // strip newline, flush extra chars
 			scanf("%s",input);
+			FLUSH_STDIN(input);    // strip newline, flush extra chars
 			input[WORD_SIZE-1] = '\0';
 			strcpy(reg[result], input);
 			storeInteger(reg[IP_REG],getInteger(reg[IP_REG])+WORDS_PERINSTR);
-			FLUSH_STDIN(input);    // strip newline, flush extra chars
 			break;
 		
 		case OUT:

@@ -96,7 +96,7 @@ void run(int db_mode, int intDisable) {
 		if(mode == USER_MODE && !intDisable) 
 			tick();
 		Executeoneinstr(instr);
-		if( (watch_flag == ENABLE && checkWatch() == ENABLE) || step_flag == ENABLE)
+		if( (watch_count > 0 && checkWatch() == ENABLE) || step_flag == ENABLE)
 			debug_interface();
 		if(is_time_zero() && !intDisable && mode==USER_MODE)
 		{

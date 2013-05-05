@@ -9,10 +9,7 @@ void initialize_debug()
 	step_flag = DISABLE;
 	bzero(command,COMMAND_LENGTH);
 	bzero( prev_command, COMMAND_LENGTH);
-	watch_flag = DISABLE;
-	bzero(watch_value, WORD_SIZE);
-	watch_addr.page_no = 0;
-	watch_addr.word_no = 0;
+	initialize_Watch();	
 }
 
 /* 
@@ -80,7 +77,8 @@ int runCommand(char command[])
 		printf(" diskfreelist / df \n \t Displays the Memory copy of Disk Free List\n\n");
 		printf(" fat \n \t Displays the Memory Copy of File Allocation Table\n\n");
 		printf(" location / l <address> \n \t Displays the content at memory address (Translation takes place in USER mode)\n\n");
-		printf(" watch / w <physical address> \n \t Sets the watch point to this address\n\n");
+		printf(" watch / w <physical address> \n \t Sets a watch point at this address\n\n");
+		printf(" watchclear / wc \n \t Clears all the watch points\n\n");
 		printf(" exit / e \n\t Exit the interface and Halt the machine\n");
 		printf(" help / h\n");
 	}	
@@ -270,10 +268,21 @@ int runCommand(char command[])
 			printf("Illegal argument for \"%s\". See \"help\" for more information",name);
 			return -1;
 		}
-		watch_addr.page_no = atoi(arg1) / PAGE_SIZE;
-		watch_addr.word_no = atoi(arg1) % PAGE_SIZE;
-		watch_flag = ENABLE;
-		strcpy(watch_value, page[watch_addr.page_no].word[watch_addr.word_no]);
+		if( watch_count >= NUM_WATCH)
+		{
+			printf("You have already used %d watch points. No more watch points can be set. Use \"watchclear\" to clear all watch points ", NUM_WATCH );
+			return -1;
+		}
+		watch[watch_count].addr.page_no = atoi(arg1) / PAGE_SIZE;
+		watch[watch_count].addr.word_no = atoi(arg1) % PAGE_SIZE;
+		strcpy(watch[watch_count].value, page[watch[watch_count].addr.page_no].word[watch[watch_count].addr.word_no]);
+		watch_count++;
+		printf("Watch point %d set.\n",watch_count);
+	}
+	else if (strcmp(name,"watchclear")==0 || strcmp(name,"wc")==0 )	//Clears all watch points
+	{
+		initialize_Watch();
+		printf("All watch points cleared.\n");
 	}
 	else if (strcmp(name,"exit")==0 || strcmp(name,"e")==0)		//Exits the interface
 		exit(0);
@@ -557,15 +566,33 @@ void printLocation(struct address translatedAddr)
  */
 int checkWatch()
 {
-	if(strcmp( page[watch_addr.page_no].word[watch_addr.word_no], watch_value) == 0)
-		return DISABLE;
-	else
+	int i;
+	for(i = 0; i < watch_count; i++)
 	{
-		printf("\nXSM Debug Environment\n");
-		printf("The Value at Location %d Changed\n", watch_addr.page_no * PAGE_SIZE + watch_addr.word_no);
-		printf("Previous value : %s\t\t" , watch_value);
-		printf("New value : %s\n" , page[watch_addr.page_no].word[watch_addr.word_no]);
-		strcpy(watch_value, page[watch_addr.page_no].word[watch_addr.word_no]);
-		return ENABLE;
+		if(strcmp( page[watch[i].addr.page_no].word[watch[i].addr.word_no], watch[i].value) != 0)
+		{
+			printf("\nXSM Debug Environment\n");
+			printf("The Value at Location %d (watch point %d) Changed\n", watch[i].addr.page_no * PAGE_SIZE + watch[i].addr.word_no, i + 1);
+			printf("Previous value : %s\t\t" , watch[i].value);
+			printf("New value : %s\n" , page[watch[i].addr.page_no].word[watch[i].addr.word_no]);
+			strcpy(watch[i].value, page[watch[i].addr.page_no].word[watch[i].addr.word_no]);
+			return ENABLE;
+		}
 	}
+	return DISABLE;
+}
+
+/*
+ * This function initialize a data structures for watch
+ */
+void initialize_Watch()
+{
+	int i;
+	for(i=0 ; i < NUM_WATCH; i++)
+	{
+		bzero(watch[i].value, WORD_SIZE);
+		watch[i].addr.page_no = 0;
+		watch[i].addr.word_no = 0;
+	}
+	watch_count = 0;
 }

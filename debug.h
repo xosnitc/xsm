@@ -11,16 +11,21 @@
 #define ENABLE 1
 
 #define COMMAND_LENGTH 50
-
+#define NUM_WATCH 16 // Maximum number of watch points that can be set
 
 int db_mode; 		// flag to check whether machine is run in debug mode or not
 int step_flag;		// flag to check whether debugging in single step mode
 
 char command[COMMAND_LENGTH],prev_command[COMMAND_LENGTH]; //buffer to store command and previous command.
 
-int watch_flag;		// flag to check whether debugging in watch mode
-char watch_value[WORD_SIZE];	// previous value of watched location
-struct address watch_addr; // address of watched location
+// data structure for watch point
+typedef struct
+{
+	char value[WORD_SIZE];	// previous value of watched location
+	struct address addr; // address of watched location
+}watch_point;
+watch_point watch[NUM_WATCH];
+int watch_count; // number of the next watch point
 
 /*
  * This function initializes all debug flags and buffers
@@ -103,5 +108,10 @@ void printLocation(struct address);
  * If unchanged returns DISABLE
  */
 int checkWatch();
+
+/*
+ * This function initialize a data structures for watch
+ */
+void initialize_Watch();
  
 #endif

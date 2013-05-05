@@ -270,7 +270,7 @@ int runCommand(char command[])
 		}
 		if( watch_count >= NUM_WATCH)
 		{
-			printf("You have already used %d watch points. No more watch points can be set. Use \"watchclear\" to clear all watch points ", NUM_WATCH );
+			printf("You have already used %d watch points. No more watch points can be set.\nUse \"watchclear\" to clear all watch points. \n", NUM_WATCH );
 			return -1;
 		}
 		watch[watch_count].addr.page_no = atoi(arg1) / PAGE_SIZE;

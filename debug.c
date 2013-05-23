@@ -507,7 +507,7 @@ void printFAT()
 	int page_no, word_no, counter;
 	page_no = FAT / PAGE_SIZE;
 	word_no = FAT % PAGE_SIZE;
-	printf("System Wide Open File Table\n");
+	printf("File Allocation Table (FAT)\n");
 	counter = 0;
 	while(counter < NUM_FAT)
 	{
